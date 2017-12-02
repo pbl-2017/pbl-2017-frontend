@@ -12824,8 +12824,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var APIWrapper = function APIWrapper() {
-    var _this = this;
-
     _classCallCheck(this, APIWrapper);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12833,49 +12831,61 @@ var APIWrapper = function APIWrapper() {
     this.get = new APIGetter(this.deviceListBehaviour);
     this.set = new APISetterMock(this.deviceListBehaviour);
 
-    this.deviceListBehaviour.subscribe(function (list) {
-        console.dir(_this.deviceListBehaviour.getValue());
-    });
+    /*this.deviceListBehaviour.subscribe(list => {
+        console.dir(this.deviceListBehaviour.getValue());
+    })*/
 };
 
 exports.default = APIWrapper;
 
 var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
-    var _this2 = this;
-
     _classCallCheck(this, APIWrapperImpl);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
     this.updater = new _APIUpdater.APIUpdaterImpl(this.deviceListBehaviour);
     this.get = new APIGetter(this.deviceListBehaviour);
-    this.set = new APISetterImpl(this.deviceListBehaviour);
+    this.set = new APISetterImpl(this.deviceListBehaviour, this.get.user);
 
-    this.deviceListBehaviour.subscribe(function (list) {
+    /*this.deviceListBehaviour.subscribe(list => {
         //const socket = list.filter(device => device instanceof Socket)[0];
         //socket.isON = !socket.isON;
         //this.set.updateDevice(socket);
-        console.dir(_this2.deviceListBehaviour.getValue());
-    });
+        console.dir(this.get.devices.toList());
+    });*/
 };
 
 var APIGetter = function APIGetter(ls) {
     _classCallCheck(this, APIGetter);
 
-    this.devices = new DeviceGetter(ls);
+    this.user = new User();
+    this.devices = new DeviceGetter(ls, this.user);
 };
 
-var DeviceGetter = function DeviceGetter(ls) {
+//ユーザー機能は発表までに作る予定はないが、便宜的に作成。
+
+
+var User = function User() {
+    _classCallCheck(this, User);
+
+    this.id = 1;
+};
+
+var DeviceGetter = function DeviceGetter(ls, user) {
     _classCallCheck(this, DeviceGetter);
 
     //現状のデバイスのリストを取得
     this.toList = function () {
-        return ls.getValue();
+        if (ls.getValue().length === 0) return [];
+
+        return ls.getValue().filter(function (element, index, array) {
+            return element.userId === user.id;
+        });
     };
 
     //現在のデバイスをdeviceIDで検索
     this.find = function (deviceID) {
         var filterLs = ls.getValue().filter(function (element, index, array) {
-            return element.id === deviceID;
+            return element.id === deviceID && element.userId === user.id;
         });
         if (filterLs.length > 0) return filterLs[0];
         return null;
@@ -12889,7 +12899,7 @@ var DeviceGetter = function DeviceGetter(ls) {
     };
 };
 
-var APISetter = function APISetter(list) {
+var APISetter = function APISetter(list, user) {
     _classCallCheck(this, APISetter);
 
     //deviceオブジェクトの通りにdeviceを更新(サーバーにプッシュ)
@@ -12900,15 +12910,52 @@ var APISetter = function APISetter(list) {
 var APISetterImpl = function (_APISetter) {
     _inherits(APISetterImpl, _APISetter);
 
-    function APISetterImpl(list) {
+    function APISetterImpl(list, user) {
         _classCallCheck(this, APISetterImpl);
 
-        var _this3 = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list));
+        var _this = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
 
-        _this3.updateDevice = function (device) {
+        _this.updateDevice = function (device) {
             _Devices.DeviceFactory.push(device);
         };
-        return _this3;
+        _this.sendQR = function (qrCodeID) {
+            var deviceFetch = function deviceFetch(deviceRESTPath, T) {
+                return function () {
+                    return new Promise(function (resolve) {
+                        fetch(_APIWrapperURL2.default.API_URL + deviceRESTPath).then(function (res) {
+                            return res.json();
+                        }).then(function (jsons) {
+                            resolve(jsons.map(function (json) {
+                                return new T(json);
+                            }));
+                        });
+                    });
+                };
+            };
+
+            var fetchSocket = deviceFetch("/socks", _Devices.Socket);
+            var fetchMP3Player = deviceFetch("/mp3_players", _Devices.MP3Player);
+
+            Promise.all([fetchSocket(), fetchMP3Player()]).then(function (resultAll) {
+                var fetchResult = [];
+                resultAll.map(function (devices) {
+                    return devices.forEach(function (device) {
+                        return fetchResult.push(device);
+                    });
+                });
+                var qrCodeMatchDevices = fetchResult.filter(function (element, index, array) {
+                    return element.id === qrCodeID;
+                });
+                console.dir(fetchResult);
+                console.dir(qrCodeMatchDevices);
+                if (qrCodeMatchDevices.length > 0) {
+                    var device = qrCodeMatchDevices[0];
+                    device.userId = user.id;
+                    _Devices.DeviceFactory.push(qrCodeMatchDevices[0]);
+                }
+            });
+        };
+        return _this;
     }
 
     return APISetterImpl;
@@ -12920,9 +12967,9 @@ var APISetterMock = function (_APISetter2) {
     function APISetterMock(list) {
         _classCallCheck(this, APISetterMock);
 
-        var _this4 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
+        var _this2 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
 
-        _this4.updateDevice = function (device) {
+        _this2.updateDevice = function (device) {
             var ls = list.getValue();
             var originDevice = ls.filter(function (d) {
                 return d.id === device.id;
@@ -12942,20 +12989,20 @@ var APISetterMock = function (_APISetter2) {
          const device = DeviceFactory.create([json])[0];
         this.updateDevice(device);*/
 
-        return _this4;
+        return _this2;
     }
 
     return APISetterMock;
 }(APISetter);
 
 var Finder = function Finder(findParameter) {
-    var _this5 = this;
+    var _this3 = this;
 
     _classCallCheck(this, Finder);
 
     this.list = [];
     this.find = function (id) {
-        var ls = _this5.list.filter(function (x) {
+        var ls = _this3.list.filter(function (x) {
             return x.id === id;
         });
         if (ls.length > 0) {
@@ -12988,9 +13035,14 @@ var APIWrapperURL = function () {
             return "http://163.44.165.115:8000";
         }
     }, {
-        key: "API_STAGING",
+        key: "API_STAGING_VER1",
         get: function get() {
             return "http://35.165.218.169:3000";
+        }
+    }, {
+        key: "API_STAGING",
+        get: function get() {
+            return "http://13.115.152.237:3000";
         }
     }, {
         key: "API_URL",
@@ -13069,6 +13121,7 @@ var Device = function () {
         _classCallCheck(this, Device);
 
         this.id = json.deviceID;
+        this.userId = json.user;
         this.dbid = json.id;
         this.toJsonForPost = function () {
             return "json";
@@ -13108,6 +13161,7 @@ var Socket = exports.Socket = function (_Device) {
         _this.toJsonForPost = function () {
             return {
                 "deviceID": _this.id,
+                "user": _this.userId,
                 "isON": _this.isON
             };
         };
@@ -13146,6 +13200,7 @@ var MP3Player = exports.MP3Player = function (_Device2) {
         _this2.toJsonForPost = function () {
             return {
                 "deviceID": _this2.id,
+                "user": _this2.userId,
                 "isPlay": _this2.isPlay,
                 "musicNumber": _this2.musicNumber
             };
@@ -13180,8 +13235,9 @@ var _APIWrapper2 = _interopRequireDefault(_APIWrapper);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var apiWrapper = new _APIWrapper.APIWrapperImpl();
-var monaca = new MonacaJS();
-var app = new _p5_app.P5App(apiWrapper, monaca);
+window.apiWrapper = apiWrapper;
+var app = new _p5_app.P5App(apiWrapper);
+
 ///
 
 },{"./APIWrapper/APIWrapper.js":4,"./p5_app.js":8}],8:[function(require,module,exports){
@@ -13193,18 +13249,17 @@ Object.defineProperty(exports, "__esModule", {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var P5App = exports.P5App = function P5App(apiWrapper, monaca) {
+var P5App = exports.P5App = function P5App(apiWrapper) {
     _classCallCheck(this, P5App);
 
-    var s = app(apiWrapper, monaca);
+    var s = app(apiWrapper);
     var myp5 = new p5(s);
 };
 
-function app(apiWrapper, monaca) {
+function app(apiWrapper) {
     return function (p) {
         p.setup = function () {
-            var canvas = p.createCanvas(600, 400);
-            canvas.parent("p5monaca");
+            p.createCanvas(600, 400);
         };
 
         p.draw = function () {

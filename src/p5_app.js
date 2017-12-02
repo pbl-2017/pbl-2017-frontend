@@ -1,15 +1,14 @@
 export class P5App {
-    constructor(apiWrapper,monaca) {
-        var s = app(apiWrapper,monaca);
+    constructor(apiWrapper) {
+        var s = app(apiWrapper);
         var myp5 = new p5(s);
     }
 }
 
-function app(apiWrapper,monaca){
+function app(apiWrapper){
     return function(p){
         p.setup = function () {
-            var canvas = p.createCanvas(600, 400);
-            canvas.parent("p5monaca");
+            p.createCanvas(600, 400);
         }
 
         p.draw = function () {

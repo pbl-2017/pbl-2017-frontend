@@ -12,26 +12,104 @@
   <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
   <link rel="stylesheet" href="css/style.css">
 
-    <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js">
-    </script>
-  <script>
+  <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js">
+  </script>
+</head>
+<body>
+<ons-splitter>
+  <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+    <ons-page>
+      <ons-list>
+        <ons-list-item onclick="fn.load('home.html')" tappable>
+          Home
+        </ons-list-item>
+        <ons-list-item onclick="fn.load('editor.html')" tappable>
+          Editor
+        </ons-list-item>
+        <ons-list-item onclick="fn.load('about.html')" tappable>
+          About
+        </ons-list-item>
+      </ons-list>
+    </ons-page>
+  </ons-splitter-side>
+  <ons-splitter-content id="content" page="home.html"></ons-splitter-content>
+</ons-splitter>
+
+<ons-template id="home.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Main
+      </div>
+    </ons-toolbar>
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      <input type="button" onclick="snapPicture()" value="Take Pictures">
+    <div id="qr_text"></div>
+    <div id="qr_status"></div>
+    </p>
+  </ons-page>
+</ons-template>
+
+<ons-template id="editor.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Editor
+      </div>
+    </ons-toolbar>
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Create">
+
+      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onInitFs, errorHandler);" value="Show">
+    </p>
+  </ons-page>
+</ons-template>
+
+<ons-template id="about.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        About
+      </div>
+    </ons-toolbar>
+  </ons-page>
+</ons-template>
+  <script src="lib/p5.js"></script>
+  <script src="lib/p5.dom.js"></script>
+  <script src="lib/app.js"></script>
+<script>
     ons.ready(function() {
-      console.log("Onsen UI is ready!");
+        console.log("Onsen UI is ready!");
     });
 
     window.fn = {};
     window.fn.open = function() {
-      var menu = document.getElementById('menu');
-      menu.open();
+        var menu = document.getElementById('menu');
+        menu.open();
     };
     window.fn.load = function(page) {
-      var content = document.getElementById('content');
-      var menu = document.getElementById('menu');
-      content
-        .load(page)
-        .then(menu.close.bind(menu));
+        var content = document.getElementById('content');
+        var menu = document.getElementById('menu');
+        content
+            .load(page)
+            .then(menu.close.bind(menu));
     };
-    
+
     document.addEventListener ("deviceready", onDeviceReady, false);
 
     //This function is executed when Cordova loading completed.
@@ -40,7 +118,7 @@
     }
 
     function snapPicture () {
-        navigator.camera.getPicture (onSuccess, onFail, 
+        navigator.camera.getPicture (onSuccess, onFail,
             { quality: 50, destinationType: Camera.DestinationType.DATA_URL});
 
 
@@ -56,66 +134,66 @@
             };
             qrcode.decode('data:image/jpeg;base64,'+imageData);
         }
-        
+
         //A callback function when snapping picture is fail.
         function onFail (message) {
             alert ('Error occured: ' + message);
         }
     }
-    
+
     function showQRIntro() {
         return confirm("Use your camera to take a picture of a QR code.");
     };
-    
+
     document.addEventListener("deviceready", onDeviceReady, false);
     function onDeviceReady() {
         console.log("You can use file plugin!");
     }
-    
+
     function errorHandler(e) {
         var msg = '';
 
-      switch (e.code) {
-        case FileError.QUOTA_EXCEEDED_ERR:
-          msg = 'QUOTA_EXCEEDED_ERR';
-          break;
-        case FileError.NOT_FOUND_ERR:
-          msg = 'NOT_FOUND_ERR';
-          break;
-        case FileError.SECURITY_ERR:
-          msg = 'SECURITY_ERR';
-          break;
-        case FileError.INVALID_MODIFICATION_ERR:
-          msg = 'INVALID_MODIFICATION_ERR';
-          break;
-        case FileError.INVALID_STATE_ERR:
-          msg = 'INVALID_STATE_ERR';
-          break;
-        default:
-          msg = 'Unknown Error';
-          break;
-      };
+        switch (e.code) {
+            case FileError.QUOTA_EXCEEDED_ERR:
+                msg = 'QUOTA_EXCEEDED_ERR';
+                break;
+            case FileError.NOT_FOUND_ERR:
+                msg = 'NOT_FOUND_ERR';
+                break;
+            case FileError.SECURITY_ERR:
+                msg = 'SECURITY_ERR';
+                break;
+            case FileError.INVALID_MODIFICATION_ERR:
+                msg = 'INVALID_MODIFICATION_ERR';
+                break;
+            case FileError.INVALID_STATE_ERR:
+                msg = 'INVALID_STATE_ERR';
+                break;
+            default:
+                msg = 'Unknown Error';
+                break;
+        };
 
-      console.log('Error: ' + msg);
+        console.log('Error: ' + msg);
     }
 
     function onCreateFile(fs) {
 
-    console.log('file system open: ' + fs.name);
-    fs.root.getFile("newPersistentFile.txt", { create: true, exclusive: false }, function (fileEntry) {
+        console.log('file system open: ' + fs.name);
+        fs.root.getFile("newPersistentFile.txt", { create: true, exclusive: false }, function (fileEntry) {
 
-        console.log("fileEntry is file?" + fileEntry.isFile.toString());
-        writeFile(fileEntry, null, "hoge");
+            console.log("fileEntry is file?" + fileEntry.isFile.toString());
+            writeFile(fileEntry, null, "hoge");
 
         })
     };
-    
+
     function onInitFs(fileSystem) {
         var directoryEntry = fileSystem.root;
         var directoryReader = directoryEntry.createReader();
         directoryReader.readEntries(getFileName, fail);
     }
-    
+
     function onFileSystemFail(error) {
         console.log("error: " + error.code);
     }
@@ -125,7 +203,7 @@
             console.log(fileEntries[index].name)
         }
     }
-    
+
     function fail(error) {
         console.log("error: " + error.code);
     }
@@ -134,22 +212,22 @@
         // Create a FileWriter object for our FileEntry (log.txt).
         fileEntry.createWriter(function (fileWriter) {
 
-        fileWriter.onwriteend = function() {
-            console.log("Successful file read...");
-            readFile(fileEntry);
-        };
+            fileWriter.onwriteend = function() {
+                console.log("Successful file read...");
+                readFile(fileEntry);
+            };
 
-        fileWriter.onerror = function (e) {
-            console.log("Failed file read: " + e.toString());
-        };
+            fileWriter.onerror = function (e) {
+                console.log("Failed file read: " + e.toString());
+            };
 
-        // If data object is not passed in,
-        // create a new Blob instead.
-        if (!dataObj) {
-            dataObj = new Blob([message], { type: 'text/plain' });
-        }
+            // If data object is not passed in,
+            // create a new Blob instead.
+            if (!dataObj) {
+                dataObj = new Blob([message], { type: 'text/plain' });
+            }
 
-        fileWriter.write(dataObj);
+            fileWriter.write(dataObj);
         });
     };
 
@@ -166,82 +244,7 @@
 
         }, fail);
     };
-  </script>
-</head>
-<body>
-  <ons-splitter>
-    <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
-      <ons-page>
-        <ons-list>
-          <ons-list-item onclick="fn.load('home.html')" tappable>
-            Home
-          </ons-list-item>
-          <ons-list-item onclick="fn.load('editor.html')" tappable>
-            Editor
-          </ons-list-item>
-          <ons-list-item onclick="fn.load('about.html')" tappable>
-            About
-          </ons-list-item>
-        </ons-list>
-      </ons-page>
-    </ons-splitter-side>
-    <ons-splitter-content id="content" page="home.html"></ons-splitter-content>
-  </ons-splitter>
-
-  <ons-template id="home.html">
-    <ons-page>
-      <ons-toolbar>
-        <div class="left">
-          <ons-toolbar-button onclick="fn.open()">
-            <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-          </ons-toolbar-button>
-        </div>
-        <div class="center">
-          Main
-        </div>
-      </ons-toolbar>
-      <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-        <input type="button" onclick="snapPicture()" value="Take Pictures">
-        <div id="qr_text"></div>
-        <div id="qr_status"></div>
-      </p>
-    </ons-page>
-  </ons-template>
-
-  <ons-template id="editor.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        Editor
-      </div>
-    </ons-toolbar>
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-        <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Create">
-
-      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onInitFs, errorHandler);" value="Show">
-    </p>
-  </ons-page>
-  </ons-template>
-
-  <ons-template id="about.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        About
-      </div>
-    </ons-toolbar>
-  </ons-page>
-  </ons-template>
-
+</script>
 </body>
+
 </html>

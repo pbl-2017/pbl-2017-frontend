@@ -32,6 +32,7 @@ export class DeviceFactory {
 class Device{
     constructor(json){
         this.id = json.deviceID;
+        this.userId = json.user;
         this.dbid = json.id;
         this.toJsonForPost = () => {return "json"}
     }
@@ -57,6 +58,7 @@ export class Socket extends Device{
         this.toJsonForPost = () => {
             return {
                 "deviceID" : this.id,
+                "user" : this.userId,
                 "isON" : this.isON
                 }
             }
@@ -81,6 +83,7 @@ export class MP3Player extends Device{
         this.toJsonForPost = () => {
             return {
                 "deviceID" : this.id,
+                "user" : this.userId,
                 "isPlay" : this.isPlay,
                 "musicNumber" : this.musicNumber
                 }

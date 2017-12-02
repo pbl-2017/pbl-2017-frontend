@@ -10,9 +10,9 @@ export default class APIWrapper{
         this.get = new APIGetter(this.deviceListBehaviour);
         this.set = new APISetterMock(this.deviceListBehaviour);
 
-        this.deviceListBehaviour.subscribe(list => {
+        /*this.deviceListBehaviour.subscribe(list => {
             console.dir(this.deviceListBehaviour.getValue());
-        })
+        })*/
     }
 }
 
@@ -21,35 +21,48 @@ export class APIWrapperImpl{
         this.deviceListBehaviour = new Rx.BehaviorSubject([]);
         this.updater = new APIUpdaterImpl(this.deviceListBehaviour);
         this.get = new APIGetter(this.deviceListBehaviour);
-        this.set = new APISetterImpl(this.deviceListBehaviour);
+        this.set = new APISetterImpl(this.deviceListBehaviour,this.get.user);
 
-        this.deviceListBehaviour.subscribe(list => {
+        /*this.deviceListBehaviour.subscribe(list => {
             //const socket = list.filter(device => device instanceof Socket)[0];
             //socket.isON = !socket.isON;
             //this.set.updateDevice(socket);
-            console.dir(this.deviceListBehaviour.getValue());
-        });
+            console.dir(this.get.devices.toList());
+        });*/
     }
 }
 
 class APIGetter{
     constructor(ls) {
-        this.devices = new DeviceGetter(ls);
+        this.user = new User();
+        this.devices = new DeviceGetter(ls,this.user);
+    }
+}
+
+//ユーザー機能は発表までに作る予定はないが、便宜的に作成。
+class User{
+    constructor(){
+        this.id = 1;
     }
 }
 
 class DeviceGetter{
-    constructor(ls) {
+    constructor(ls,user) {
 
         //現状のデバイスのリストを取得
         this.toList = () => {
-            return ls.getValue();
+            if(ls.getValue().length === 0)
+                return [];
+
+            return ls.getValue().filter((element,index,array) => {
+                return element.userId === user.id;
+            });
         }
 
         //現在のデバイスをdeviceIDで検索
         this.find = (deviceID) => {
             const filterLs = ls.getValue().filter((element,index,array) => {
-                return element.id === deviceID;
+                return element.id === deviceID && element.userId === user.id;
             });
             if(filterLs.length > 0)
                 return filterLs[0]
@@ -67,20 +80,56 @@ class DeviceGetter{
 }
 
 class APISetter{
-    constructor(list){
+    constructor(list,user){
         //deviceオブジェクトの通りにdeviceを更新(サーバーにプッシュ)
         this.updateDevice = (device) => {
 
         }
-        this.sendQR = (qrCodeID) => {}
+        this.sendQR = (qrCodeID) => {
+
+        }
     }
 }
 
 class APISetterImpl extends APISetter{
-    constructor(list){
-        super(list);
+    constructor(list,user){
+        super(list,user);
         this.updateDevice = (device) => {
             DeviceFactory.push(device);
+        }
+        this.sendQR = (qrCodeID) => {
+            const deviceFetch = function(deviceRESTPath,T) {
+                return function () {
+                    return new Promise((resolve) => {
+                        fetch(APIWrapperURL.API_URL + deviceRESTPath)
+                            .then(function (res) {
+                                return res.json()
+                            })
+                            .then(function (jsons) {
+                                resolve(jsons.map(json => new T(json)));
+                            });
+                    });
+                }
+            }
+
+            const fetchSocket = deviceFetch("/socks",Socket);
+            const fetchMP3Player = deviceFetch("/mp3_players",MP3Player);
+
+
+            Promise.all([fetchSocket(),fetchMP3Player()]).then(function (resultAll) {
+                let fetchResult = [];
+                resultAll.map(devices => devices.forEach(device => fetchResult.push(device)));
+                const qrCodeMatchDevices = fetchResult.filter((element,index,array) => {
+                    return element.id === qrCodeID;
+                });
+                console.dir(fetchResult)
+                console.dir(qrCodeMatchDevices)
+                if(qrCodeMatchDevices.length > 0) {
+                    const device = qrCodeMatchDevices[0];
+                    device.userId = user.id;
+                    DeviceFactory.push(qrCodeMatchDevices[0]);
+                }
+            });
         }
     }
 }
