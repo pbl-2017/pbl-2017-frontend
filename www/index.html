@@ -14,7 +14,83 @@
 
     <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js">
     </script>
-  <script>
+</head>
+<body>
+  <ons-splitter>
+    <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+      <ons-page>
+        <ons-list>
+          <ons-list-item onclick="fn.load('home.html')" tappable>
+            Home
+          </ons-list-item>
+          <ons-list-item onclick="fn.load('editor.html')" tappable>
+            Editor
+          </ons-list-item>
+          <ons-list-item onclick="fn.load('about.html')" tappable>
+            About
+          </ons-list-item>
+        </ons-list>
+      </ons-page>
+    </ons-splitter-side>
+    <ons-splitter-content id="content" page="home.html"></ons-splitter-content>
+  </ons-splitter>
+
+  <ons-template id="home.html">
+    <ons-page>
+      <ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button onclick="fn.open()">
+            <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+          </ons-toolbar-button>
+        </div>
+        <div class="center">
+          Main
+        </div>
+      </ons-toolbar>
+      <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+        <input type="button" onclick="snapPicture()" value="Take Pictures">
+        <div id="qr_text"></div>
+        <div id="qr_status"></div>
+      </p>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="editor.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        Editor
+      </div>
+    </ons-toolbar>
+    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+        <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Create">
+
+      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onInitFs, errorHandler);" value="Show">
+    </p>
+  </ons-page>
+  </ons-template>
+
+  <ons-template id="about.html">
+  <ons-page>
+    <ons-toolbar>
+      <div class="left">
+        <ons-toolbar-button onclick="fn.open()">
+          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
+        </ons-toolbar-button>
+      </div>
+      <div class="center">
+        About
+      </div>
+    </ons-toolbar>
+  </ons-page>
+  </ons-template>
+
+<script>
     ons.ready(function() {
       console.log("Onsen UI is ready!");
     });
@@ -167,81 +243,6 @@
         }, fail);
     };
   </script>
-</head>
-<body>
-  <ons-splitter>
-    <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
-      <ons-page>
-        <ons-list>
-          <ons-list-item onclick="fn.load('home.html')" tappable>
-            Home
-          </ons-list-item>
-          <ons-list-item onclick="fn.load('editor.html')" tappable>
-            Editor
-          </ons-list-item>
-          <ons-list-item onclick="fn.load('about.html')" tappable>
-            About
-          </ons-list-item>
-        </ons-list>
-      </ons-page>
-    </ons-splitter-side>
-    <ons-splitter-content id="content" page="home.html"></ons-splitter-content>
-  </ons-splitter>
-
-  <ons-template id="home.html">
-    <ons-page>
-      <ons-toolbar>
-        <div class="left">
-          <ons-toolbar-button onclick="fn.open()">
-            <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-          </ons-toolbar-button>
-        </div>
-        <div class="center">
-          Main
-        </div>
-      </ons-toolbar>
-      <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-        <input type="button" onclick="snapPicture()" value="Take Pictures">
-        <div id="qr_text"></div>
-        <div id="qr_status"></div>
-      </p>
-    </ons-page>
-  </ons-template>
-
-  <ons-template id="editor.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        Editor
-      </div>
-    </ons-toolbar>
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-        <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Create">
-
-      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onInitFs, errorHandler);" value="Show">
-    </p>
-  </ons-page>
-  </ons-template>
-
-  <ons-template id="about.html">
-  <ons-page>
-    <ons-toolbar>
-      <div class="left">
-        <ons-toolbar-button onclick="fn.open()">
-          <ons-icon icon="ion-navicon, material:md-menu"></ons-icon>
-        </ons-toolbar-button>
-      </div>
-      <div class="center">
-        About
-      </div>
-    </ons-toolbar>
-  </ons-page>
-  </ons-template>
 
 </body>
 </html>
