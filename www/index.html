@@ -14,6 +14,7 @@
 
   <script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js">
   </script>
+  
 </head>
 <body>
 <ons-splitter>
@@ -21,13 +22,13 @@
     <ons-page>
       <ons-list>
         <ons-list-item onclick="fn.load('home.html')" tappable>
-          Home
+          Device Settings
         </ons-list-item>
         <ons-list-item onclick="fn.load('editor.html')" tappable>
-          Editor
+          Programming
         </ons-list-item>
         <ons-list-item onclick="fn.load('about.html')" tappable>
-          About
+          Module List
         </ons-list-item>
       </ons-list>
     </ons-page>
@@ -44,11 +45,11 @@
         </ons-toolbar-button>
       </div>
       <div class="center">
-        Main
+        Device Settings
       </div>
     </ons-toolbar>
     <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      <input type="button" onclick="snapPicture()" value="Take Pictures">
+      <input type="button" onclick="snapPicture()" value="Read QRcode">
     <div id="qr_text"></div>
     <div id="qr_status"></div>
     </p>
@@ -64,13 +65,15 @@
         </ons-toolbar-button>
       </div>
       <div class="center">
-        Editor
+        Programming
       </div>
     </ons-toolbar>
+    <div id="p5Canvas">
+        
+    </div>
     <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
-      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Create">
-
-      <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onInitFs, errorHandler);" value="Show">
+    <textarea id="fileName"></textarea>
+    <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Save">
     </p>
   </ons-page>
 </ons-template>
@@ -84,14 +87,23 @@
         </ons-toolbar-button>
       </div>
       <div class="center">
-        About
+        Module List
       </div>
     </ons-toolbar>
+    <div id="projects"; style="text-align: center; opacity: 0.6; padding-top: 20px;">
+        <div>
+            <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, loadFile, errorHandler);" value="Reload";>
+        </div>
+        <div>
+            <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, fn.load('editor.html'), errorHandler);" value="New";>
+        </div>
+    </div>
   </ons-page>
 </ons-template>
-  <script src="lib/p5.js"></script>
-  <script src="lib/p5.dom.js"></script>
-  <script src="lib/app.js"></script>
+<script src="lib/p5.dom.js"></script>
+<script src="lib/p5.js"></script>
+<script src="lib/app.js"></script>
+<script src="lib/test.js"></script>
 <script>
     ons.ready(function() {
         console.log("Onsen UI is ready!");
@@ -130,6 +142,8 @@
                 } else {
                     document.getElementById('qr_text').innerText = res;
                     console.log(res);
+                    window.apiWrapper.sendQR(res);
+                    fn.load('editor.html');
                 }
             };
             qrcode.decode('data:image/jpeg;base64,'+imageData);
@@ -180,11 +194,11 @@
     function onCreateFile(fs) {
 
         console.log('file system open: ' + fs.name);
-        fs.root.getFile("newPersistentFile.txt", { create: true, exclusive: false }, function (fileEntry) {
+        var fileName = document.getElementById('fileName').value;
+        fs.root.getFile(fileName+'.html', { create: true, exclusive: false }, function (fileEntry) {
 
-            console.log("fileEntry is file?" + fileEntry.isFile.toString());
-            writeFile(fileEntry, null, "hoge");
-
+            console.log("fileEntry is file? " + fileEntry.isFile.toString());
+            _writeFile(fileEntry, null, "hoge");
         })
     };
 
@@ -208,7 +222,7 @@
         console.log("error: " + error.code);
     }
 
-    function writeFile(fileEntry, dataObj, message) {
+    function _writeFile(fileEntry, dataObj, message) {
         // Create a FileWriter object for our FileEntry (log.txt).
         fileEntry.createWriter(function (fileWriter) {
 
@@ -244,6 +258,25 @@
 
         }, fail);
     };
+    
+    function showProjectLists(fileEntries) {         
+        var divs = document.getElementById('projects');
+        for (i = 0; i < fileEntries.length; ++i) {
+            var div = document.createElement('div');
+            var project = document.createElement('input');
+            project.setAttribute('type', 'button');
+            project.setAttribute('value', fileEntries[i].name);
+            // project.onclick = function(this) {console.log(this.fileEntries[i].name);};
+            div.appendChild(project);
+            divs.appendChild(div);
+        }
+    }
+    
+    function loadFile(fileSystem) {
+        var directoryEntry = fileSystem.root;
+        var directoryReader = directoryEntry.createReader();
+        directoryReader.readEntries(showProjectLists, fail);
+    }
 </script>
 </body>
 
