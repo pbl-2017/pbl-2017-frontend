@@ -12824,6 +12824,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var APIWrapper = function APIWrapper() {
+    var _this = this;
+
     _classCallCheck(this, APIWrapper);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12831,14 +12833,16 @@ var APIWrapper = function APIWrapper() {
     this.get = new APIGetter(this.deviceListBehaviour);
     this.set = new APISetterMock(this.deviceListBehaviour);
 
-    /*this.deviceListBehaviour.subscribe(list => {
-        console.dir(this.deviceListBehaviour.getValue());
-    })*/
+    this.deviceListBehaviour.subscribe(function (list) {
+        console.dir(_this.deviceListBehaviour.getValue());
+    });
 };
 
 exports.default = APIWrapper;
 
 var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
+    var _this2 = this;
+
     _classCallCheck(this, APIWrapperImpl);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12846,12 +12850,12 @@ var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
     this.get = new APIGetter(this.deviceListBehaviour);
     this.set = new APISetterImpl(this.deviceListBehaviour, this.get.user);
 
-    /*this.deviceListBehaviour.subscribe(list => {
+    this.deviceListBehaviour.subscribe(function (list) {
         //const socket = list.filter(device => device instanceof Socket)[0];
         //socket.isON = !socket.isON;
         //this.set.updateDevice(socket);
-        console.dir(this.get.devices.toList());
-    });*/
+        console.dir(_this2.get.devices.toList());
+    });
 };
 
 var APIGetter = function APIGetter(ls) {
@@ -12913,12 +12917,12 @@ var APISetterImpl = function (_APISetter) {
     function APISetterImpl(list, user) {
         _classCallCheck(this, APISetterImpl);
 
-        var _this = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
+        var _this3 = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
 
-        _this.updateDevice = function (device) {
+        _this3.updateDevice = function (device) {
             _Devices.DeviceFactory.push(device);
         };
-        _this.sendQR = function (qrCodeID) {
+        _this3.sendQR = function (qrCodeID) {
             var deviceFetch = function deviceFetch(deviceRESTPath, T) {
                 return function () {
                     return new Promise(function (resolve) {
@@ -12955,7 +12959,7 @@ var APISetterImpl = function (_APISetter) {
                 }
             });
         };
-        return _this;
+        return _this3;
     }
 
     return APISetterImpl;
@@ -12967,9 +12971,9 @@ var APISetterMock = function (_APISetter2) {
     function APISetterMock(list) {
         _classCallCheck(this, APISetterMock);
 
-        var _this2 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
+        var _this4 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
 
-        _this2.updateDevice = function (device) {
+        _this4.updateDevice = function (device) {
             var ls = list.getValue();
             var originDevice = ls.filter(function (d) {
                 return d.id === device.id;
@@ -12989,20 +12993,20 @@ var APISetterMock = function (_APISetter2) {
          const device = DeviceFactory.create([json])[0];
         this.updateDevice(device);*/
 
-        return _this2;
+        return _this4;
     }
 
     return APISetterMock;
 }(APISetter);
 
 var Finder = function Finder(findParameter) {
-    var _this3 = this;
+    var _this5 = this;
 
     _classCallCheck(this, Finder);
 
     this.list = [];
     this.find = function (id) {
-        var ls = _this3.list.filter(function (x) {
+        var ls = _this5.list.filter(function (x) {
             return x.id === id;
         });
         if (ls.length > 0) {
@@ -13235,37 +13239,4203 @@ var _APIWrapper2 = _interopRequireDefault(_APIWrapper);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var apiWrapper = new _APIWrapper.APIWrapperImpl();
-window.apiWrapper = apiWrapper;
 var app = new _p5_app.P5App(apiWrapper);
 
 ///
 
-},{"./APIWrapper/APIWrapper.js":4,"./p5_app.js":8}],8:[function(require,module,exports){
+},{"./APIWrapper/APIWrapper.js":4,"./p5_app.js":18}],8:[function(require,module,exports){
+'use strict';
+
+/*
+	Basic methods and variable
+	for drawing.
+	well, to control the scale, it's too hard for me, I'm not using it....
+*/
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var static_variable = function () {
+	function static_variable() {
+		_classCallCheck(this, static_variable);
+
+		this.scale = 1.0;
+	}
+
+	_createClass(static_variable, [{
+		key: "setInstance",
+		value: function setInstance(ins) {
+			this.instance = ins;
+		}
+	}, {
+		key: "getInstance",
+		value: function getInstance() {
+			return this.instance;
+		}
+	}]);
+
+	return static_variable;
+}();
+
+var static_var = new static_variable();
+
+/*
+	the template of drawing object
+*/
+
+var DrawObject = function () {
+	function DrawObject(p, pos_x, pos_y, color) {
+		_classCallCheck(this, DrawObject);
+
+		this.static_var = static_var;
+		this.state_manager;
+		this.x = pos_x;
+		this.y = pos_y;
+		this.color = color;
+		this.fill_flag = true;
+		this.p5js = p;
+	}
+
+	_createClass(DrawObject, [{
+		key: "draw",
+		value: function draw() {
+			console.log("must implemented");
+		}
+	}, {
+		key: "addPos",
+		value: function addPos(dx, dy) {
+			this.x += dx;
+			this.y += dy;
+		}
+	}, {
+		key: "setPos",
+		value: function setPos(x, y) {
+			this.x = x;
+			this.y = y;
+		}
+	}, {
+		key: "getPos",
+		value: function getPos(x, y) {
+			return x, y;
+		}
+	}, {
+		key: "getX",
+		value: function getX() {
+			return this.x;
+		}
+	}, {
+		key: "getY",
+		value: function getY() {
+			return this.y;
+		}
+	}, {
+		key: "setColor",
+		value: function setColor(color) {
+			this.color = color;
+		}
+	}, {
+		key: "setColorRGB",
+		value: function setColorRGB(r, g, b) {
+			this.color.r = r;
+			this.color.b = b;
+			this.color.g = g;
+		}
+	}, {
+		key: "setFill",
+		value: function setFill(flag) {
+			this.fill_flag = flag;
+		}
+	}, {
+		key: "setLabelName",
+		value: function setLabelName(name) {
+			this.label_name = name;
+		}
+	}]);
+
+	return DrawObject;
+}();
+
+/*
+	Class for drawing a "link".
+*/
+
+
+var Edge = exports.Edge = function () {
+	function Edge(p, output_obj, input_obj, color) {
+		_classCallCheck(this, Edge);
+
+		this.output_obj = output_obj;
+		this.input_obj = input_obj;
+		this.color = color;
+
+		this.fill_flag = true;
+
+		self.p5js = p;
+	}
+
+	_createClass(Edge, [{
+		key: "draw",
+		value: function draw() {
+			// save drawing state
+			self.p5js.push();
+			self.p5js.strokeWeight(2);
+			if (this.fill_flag) self.p5js.stroke(this.color.r, this.color.g, this.color.b);
+			self.p5js.line(this.output_obj.getX_d(), this.output_obj.getY_d(), this.input_obj.getX_d(), this.input_obj.getY_d());
+			// restore drawing state
+			self.p5js.pop();
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			return false;
+		}
+	}, {
+		key: "hasEdge",
+		value: function hasEdge(node1, node2) {
+			return (this.output_obj === node1 || this.output_obj === node2) && (this.input_obj === node1 || this.input_obj === node2);
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			return { "output_parent_id": this.output_obj.getParent().getNodeID(), "output_component_id": this.output_obj.getComponentID(), "input_parent_id": this.input_obj.getParent().getNodeID(), "input_component_id": this.input_obj.getComponentID() };
+		}
+	}]);
+
+	return Edge;
+}();
+
+/*
+	Template of Components.
+*/
+
+
+var Component = exports.Component = function (_DrawObject) {
+	_inherits(Component, _DrawObject);
+
+	function Component(p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color) {
+		_classCallCheck(this, Component);
+
+		var _this = _possibleConstructorReturn(this, (Component.__proto__ || Object.getPrototypeOf(Component)).call(this, p, parent.getX() + relative_pos_x, parent.getY() + relative_pos_y, color));
+
+		_this.parent = parent;
+
+		_this.relative_x = relative_pos_x;
+		_this.relative_y = relative_pos_y;
+
+		_this.select_color = select_color;
+		_this.on_color = on_color;
+
+		_this.select_flag = false;
+		_this.on_flag = false;
+
+		_this.linked_components = [];
+		_this.connectable_num = 1;
+		_this.connection_num = 0;
+		return _this;
+	}
+
+	// I don't know how to get the class instance itself
+
+
+	_createClass(Component, [{
+		key: "setInstance",
+		value: function setInstance(instance) {
+			this.instance = instance;
+		}
+	}, {
+		key: "getInstance",
+		value: function getInstance() {
+			return this.instance;
+		}
+	}, {
+		key: "getParent",
+		value: function getParent() {
+			return this.parent;
+		}
+	}, {
+		key: "setPos",
+		value: function setPos(x, y) {
+			this.x = x + this.relative_x;
+			this.y = y + this.relative_y;
+		}
+	}, {
+		key: "setSelected",
+		value: function setSelected(flag) {
+			this.select_flag = flag;
+		}
+	}, {
+		key: "isSelected",
+		value: function isSelected() {
+			return this.selected_flag;
+		}
+	}, {
+		key: "setMouseOn",
+		value: function setMouseOn(flag) {
+			this.on_flag = flag;
+		}
+	}, {
+		key: "getMouseOn",
+		value: function getMouseOn() {
+			return this.on_flag;
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			console.log("must implemented");
+			return false;
+		}
+	}, {
+		key: "returnMouseOnInstance",
+		value: function returnMouseOnInstance(mx, my) {
+			if (this.isMouseOn(mx, my)) return this.instance;else return null;
+		}
+	}, {
+		key: "isComponent",
+		value: function isComponent() {
+			return true;
+		}
+	}, {
+		key: "setConnectableNum",
+		value: function setConnectableNum(num) {
+			this.connectable_num = num;
+		}
+	}, {
+		key: "isConnectable",
+		value: function isConnectable() {
+			if (this.connection_num < this.connectable_num || this.connectable_num == 0) return true;
+			return false;
+		}
+
+		// 0 : output, 1 : input
+
+	}, {
+		key: "setIOType",
+		value: function setIOType(type) {
+			this.io_type = type;
+		}
+	}, {
+		key: "getIOType",
+		value: function getIOType(type) {
+			return this.io_type;
+		}
+	}, {
+		key: "setProperty",
+		value: function setProperty(prop) {
+			this.property = prop;
+		}
+	}, {
+		key: "getProperty",
+		value: function getProperty() {
+			return this.property;
+		}
+	}, {
+		key: "isComponentValid",
+		value: function isComponentValid(comp) {
+			if (comp.getIOType() == this.io_type || comp.getProperty() != this.property) return false;
+			return true;
+		}
+	}, {
+		key: "hasAction",
+		value: function hasAction() {
+			console.log("must implemented");
+			return false;
+		}
+	}, {
+		key: "action",
+		value: function action() {
+			;
+		}
+	}, {
+		key: "connect",
+		value: function connect() {
+			this.connection_num += 1;
+		}
+	}, {
+		key: "disconnect",
+		value: function disconnect() {
+			this.connection_num -= 1;
+		}
+		/*
+  getLink(){
+  	return this.linked_components;
+  }
+  del_link(target){
+  	for(var i = 0; i < this.linked_components.length; i++){
+  		if(target === this.linked_components[i]){
+  			this.linked_components.splice(i, 1);
+  			this.connection_num -= 1;
+  			break;
+  		}
+  	}
+  }
+  */
+
+	}]);
+
+	return Component;
+}(DrawObject);
+
+/*
+	Basic node class
+*/
+
+
+var Node = exports.Node = function (_DrawObject2) {
+	_inherits(Node, _DrawObject2);
+
+	function Node(p, pos_x, pos_y, base_color, select_color, on_color) {
+		_classCallCheck(this, Node);
+
+		var _this2 = _possibleConstructorReturn(this, (Node.__proto__ || Object.getPrototypeOf(Node)).call(this, p, pos_x, pos_y, base_color));
+
+		_this2.instance = _this2;
+
+		_this2.w = 100;
+		_this2.h = 100;
+		_this2.radius = 10;
+		_this2.margin = 4;
+		_this2.margin_x = _this2.x - _this2.margin;
+		_this2.margin_y = _this2.y - _this2.margin;
+		_this2.margin_w = _this2.w + _this2.margin * 2;
+		_this2.margin_h = _this2.h + _this2.margin * 2;
+
+		_this2.select_color = select_color;
+		_this2.on_color = on_color;
+
+		_this2.select_flag = false;
+		_this2.on_flag = false;
+
+		_this2.components = [];
+
+		_this2.component_margin = 30;
+		_this2.top_margin = 35;
+		_this2.desc_margin = 0;
+		_this2.bottom_margin = 0;
+
+		_this2.node_id = -1;
+		return _this2;
+	}
+
+	_createClass(Node, [{
+		key: "init",
+		value: function init() {
+			this.h = this.top_margin + this.components.length * this.component_margin + this.bottom_margin;
+			this.margin_h = this.h + this.margin * 2;
+			this.updateComponentPos();
+		}
+		// I don't know how to get the class instance itself
+
+	}, {
+		key: "setInstance",
+		value: function setInstance(instance) {
+			this.instance = instance;
+		}
+	}, {
+		key: "getInstance",
+		value: function getInstance() {
+			return this.instance;
+		}
+	}, {
+		key: "setNodeID",
+		value: function setNodeID(id) {
+			this.node_id = id;
+		}
+	}, {
+		key: "getNodeID",
+		value: function getNodeID() {
+			return this.node_id;
+		}
+	}, {
+		key: "addComponent",
+		value: function addComponent(comp) {
+			this.components.push(comp);
+		}
+	}, {
+		key: "delComponent",
+		value: function delComponent(comp) {
+			;
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			;
+		}
+	}, {
+		key: "draw",
+		value: function draw() {
+			console.log("must implemented");
+		}
+	}, {
+		key: "getW",
+		value: function getW() {
+			return this.w;
+		}
+	}, {
+		key: "getH",
+		value: function getH() {
+			return this.h;
+		}
+	}, {
+		key: "getCenterX",
+		value: function getCenterX() {
+			return this.x + this.w / 2;
+		}
+	}, {
+		key: "getCenterY",
+		value: function getCenterY() {
+			return this.y + this.h / 2;
+		}
+	}, {
+		key: "getStableDis",
+		value: function getStableDis() {
+			return this.stable_dis;
+		}
+	}, {
+		key: "getStableMarginMin",
+		value: function getStableMarginMin() {
+			return this.stable_margin_min;
+		}
+	}, {
+		key: "getStableMarginMax",
+		value: function getStableMarginMax() {
+			return this.stable_margin_max;
+		}
+	}, {
+		key: "addPos",
+		value: function addPos(dx, dy) {
+			this.x += dx;
+			this.y += dy;
+			this.updateComponentPos();
+		}
+	}, {
+		key: "setPos",
+		value: function setPos(x, y) {
+			this.x = x;
+			this.y = y;
+			this.updateComponentPos();
+		}
+	}, {
+		key: "updateComponentPos",
+		value: function updateComponentPos() {
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].setPos(this.x, this.y);
+			}
+		}
+	}, {
+		key: "setSelected",
+		value: function setSelected(flag) {
+			this.select_flag = flag;
+		}
+	}, {
+		key: "isSelected",
+		value: function isSelected() {
+			return this.selected_flag;
+		}
+	}, {
+		key: "setMouseOn",
+		value: function setMouseOn(flag) {
+			this.on_flag = flag;
+		}
+	}, {
+		key: "getMouseOn",
+		value: function getMouseOn() {
+			return this.on_flag;
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			console.log("must implemented");
+			return false;
+		}
+	}, {
+		key: "returnMouseOnInstance",
+		value: function returnMouseOnInstance(mx, my) {
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				var cins = this.components[i].returnMouseOnInstance(mx, my);
+				if (cins != null) return cins;
+			}
+			if (this.isMouseOn(mx, my)) return this.getInstance();
+			return null;
+		}
+	}, {
+		key: "isComponent",
+		value: function isComponent() {
+			return false;
+		}
+	}]);
+
+	return Node;
+}(DrawObject);
+
+var Line = exports.Line = function (_DrawObject3) {
+	_inherits(Line, _DrawObject3);
+
+	function Line(p, pos_x, pos_y, target_x, target_y, color) {
+		_classCallCheck(this, Line);
+
+		var _this3 = _possibleConstructorReturn(this, (Line.__proto__ || Object.getPrototypeOf(Line)).call(this, p, pos_x, pos_y, color));
+
+		_this3.tx = target_x;
+		_this3.ty = target_y;
+		return _this3;
+	}
+
+	_createClass(Line, [{
+		key: "draw",
+		value: function draw() {
+			// save drawing state
+			self.p5js.push();
+			if (this.fill_flag) self.p5js.fill(this.color.r, this.color.g, this.color.b);
+			self.p5js.line(this.x, this.y, this.tx, this.ty);
+			// restore drawing state
+			self.p5js.pop();
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			// toriaezu
+			return false;
+		}
+	}]);
+
+	return Line;
+}(DrawObject);
+
+},{}],9:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.Button = exports.Output = exports.Input = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _templates = require("./templates.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/*
+	Input component class.
+	I should rename it to IO or soething...
+*/
+var Input = exports.Input = function (_ComponentTemplate) {
+	_inherits(Input, _ComponentTemplate);
+
+	function Input(p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color) {
+		var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, Input);
+
+		var _this = _possibleConstructorReturn(this, (Input.__proto__ || Object.getPrototypeOf(Input)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color, false));
+
+		_this.io_type = 1;
+		_this.arc_radius = _this.radius * 2;
+		_this.text_xmargin = 10;
+		_this.text_ymargin = 20; //4;
+		_this.comp_id = comp_id;
+		return _this;
+	}
+
+	_createClass(Input, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.select_flag) this.p5js.fill(this.select_color.r, this.select_color.g, this.select_color.b);else if (this.on_flag) this.p5js.fill(this.on_color.r, this.on_color.g, this.on_color.b);else if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.arc(this.x, this.y, this.arc_radius, this.arc_radius, this.p5js.PI, 0, this.p5js.CHORD);
+			this.p5js.textSize(this.text_size);
+			this.p5js.textAlign(this.p5js.CENTER);
+			this.p5js.fill(0, 0, 0);
+			//this.p5js.text(this.name, this.x+this.text_xmargin, this.y+this.text_ymargin);
+			this.p5js.text(this.name, this.x, this.y + this.text_ymargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "getX_d",
+		value: function getX_d() {
+			//return this.x-this.radius;
+			return this.x;
+		}
+	}, {
+		key: "getY_d",
+		value: function getY_d() {
+			//return this.y;
+			return this.y - this.radius;
+		}
+	}]);
+
+	return Input;
+}(_templates.ComponentTemplate);
+
+var Output = exports.Output = function (_ComponentTemplate2) {
+	_inherits(Output, _ComponentTemplate2);
+
+	function Output(p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color, flag_forward) {
+		var comp_id = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
+
+		_classCallCheck(this, Output);
+
+		var _this2 = _possibleConstructorReturn(this, (Output.__proto__ || Object.getPrototypeOf(Output)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color, flag_forward));
+
+		_this2.io_type = 0;
+		_this2.arc_radius = _this2.radius * 2;
+		_this2.text_xmargin = -50;
+		_this2.text_ymargin = -5;
+		_this2.comp_id = comp_id;
+		return _this2;
+	}
+
+	_createClass(Output, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.select_flag) this.p5js.fill(this.select_color.r, this.select_color.g, this.select_color.b);else if (this.on_flag) this.p5js.fill(this.on_color.r, this.on_color.g, this.on_color.b);else if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.arc(this.x, this.y, this.arc_radius, this.arc_radius, 0, -this.p5js.PI, this.p5js.CHORD);
+
+			this.p5js.textSize(this.text_size);
+			this.p5js.textAlign(this.p5js.CENTER);
+			this.p5js.fill(0, 0, 0);
+			//this.p5js.text(this.name, this.x+this.text_xmargin, this.y+this.text_ymargin);
+			this.p5js.text(this.name, this.x, this.y + this.text_ymargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "getX_d",
+		value: function getX_d() {
+			//return this.x+this.radius;
+			return this.x;
+		}
+	}, {
+		key: "getY_d",
+		value: function getY_d() {
+			//return this.y;
+			return this.y + this.radius;
+		}
+	}]);
+
+	return Output;
+}(_templates.ComponentTemplate);
+
+/*
+	Action node class.
+	using like clicking on 
+*/
+
+
+var Button = exports.Button = function (_ComponentTemplate3) {
+	_inherits(Button, _ComponentTemplate3);
+
+	function Button(p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color) {
+		var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, Button);
+
+		var _this3 = _possibleConstructorReturn(this, (Button.__proto__ || Object.getPrototypeOf(Button)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color, false));
+
+		_this3.io_type = 0;
+		_this3.w = 80;
+		_this3.h = 40;
+		_this3.text_xmargin = 10;
+		_this3.text_ymargin = 20;
+		_this3.comp_id = comp_id;
+		return _this3;
+	}
+
+	_createClass(Button, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.select_flag) this.p5js.fill(this.select_color.r, this.select_color.g, this.select_color.b);else if (this.on_flag) this.p5js.fill(this.on_color.r, this.on_color.g, this.on_color.b);else if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h);
+
+			this.p5js.textSize(this.text_size);
+			this.p5js.fill(255, 255, 255);
+			this.p5js.text(this.name, this.x + this.text_xmargin, this.y + this.text_ymargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			if (mx >= this.x && mx <= this.x + this.w && my >= this.y && my <= this.y + this.h) return true;
+			return false;
+		}
+	}, {
+		key: "hasForwarding",
+		value: function hasForwarding() {
+			return true;
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			this.parent.run();
+		}
+	}]);
+
+	return Button;
+}(_templates.ComponentTemplate);
+
+},{"./templates.js":21}],10:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.AccelerationNode = exports.OptionButtonNode = exports.IOButtonNode = exports.SocketNode = exports.MusicPlayerNode = exports.GetList = exports.command_MenuNode = exports.MenuNode = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _templates = require("./templates.js");
+
+var _gen_component = require("./gen_component.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+/*
+export class ConstNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue, input_field){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Const";
+		this.desc = "val : ";
+		this.top_margin = 50;
+		this.bottom_margin = 10;
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.input_field_posx = this.x+15;
+		this.input_field_posy = this.y+this.h-20;
+
+		this.input_field = input_field;
+
+		this.addComponent(output_component(this.p5js, this, this.w, this.components.length*this.component_margin+this.top_margin, 0, false, "output"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		else this.p5js.noFill();
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(this.att_stroke_size);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(this.att_stroke_size);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.textAlign(this.p5js.LEFT);
+		this.p5js.text(this.desc+String(this.val), this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		this.p5js.pop();
+	}
+
+	setVal(val){
+		var tmp = parseInt(val)
+		if(!isNaN(tmp)) this.val = tmp;
+	}
+
+	setField(){
+		this.input_field.value(this.val);
+		this.input_field_posx = this.x+15;
+		this.input_field_posy = this.y+this.h-20;
+		this.input_field.position(this.input_field_posx, this.input_field_posy);
+		this.input_field.show();
+	}
+
+	updateComponentPos(){
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].setPos(this.x, this.y);
+		
+		// outer stroke
+		this.margin_x = this.x-this.margin;
+		this.margin_y = this.y-this.margin;
+		this.margin_w = this.w+this.margin*2;
+		this.margin_h = this.h+this.margin*2;
+
+		this.input_field_posx = this.x+15;
+		this.input_field_posy = this.y+this.h-20;
+		this.input_field.position(this.input_field_posx, this.input_field_posy);
+	}
+
+	hideField(){
+		this.input_field.hide();
+	}
+
+	hasField(){
+		return true;
+	}
+
+	writeOutput(){
+		return this.val;
+	}
+}
+
+export class ButtonNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Button";
+		this.desc = "";
+
+		this.addComponent(output_component(this.p5js, this, this.w, 20, 0, true, "output"));
+		this.addComponent(button_component(this.p5js, this, 10, 50, 0, false, "button"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+
+	run(){
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length;id++){
+				for(var i=0; i < this.output_nodes[id].length;i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			}
+		}
+	}
+}
+
+export class AddNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue, calc_queue);
+		this.name = "Add";
+		this.desc = "value1 + value2";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.top_margin += this.desc_topmargin;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "output"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	// read from input node
+	readInput(){
+		this.buff = 0;
+		var tmp=0;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[0][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = tmp;
+			}
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[1][0].writeOutput());
+				if(!isNaN(tmp)) this.buff += tmp;
+			}
+		}
+	}
+
+	// this is called from other nodes
+	writeOutput(){
+		return this.buff;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length; id++){
+				for(var i=0; i < this.output_nodes[id].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			} 
+		}
+	}
+}
+export class SubNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Sub";
+		this.desc = "value1 - value2";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.top_margin += this.desc_topmargin;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "output"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	// read from input node
+	readInput(){
+		this.buff = 0;
+		var tmp=0;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[0][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = tmp;
+			}
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[1][0].writeOutput());
+				if(!isNaN(tmp)) this.buff -= tmp;
+			}
+		}
+	}
+
+	// this is called from other nodes
+	writeOutput(){
+		return this.buff;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length; id++){
+				for(var i=0; i < this.output_nodes[id].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			} 
+		}
+	}
+}
+export class MulNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Mul";
+		this.desc = "value1 * value2";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.top_margin += this.desc_topmargin;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "output"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	// read from input node
+	readInput(){
+		this.buff = 0;
+		var tmp=0;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[0][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = tmp;
+			}
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[1][0].writeOutput());
+				if(!isNaN(tmp)) this.buff *= tmp;
+			}
+		}
+	}
+
+	// this is called from other nodes
+	writeOutput(){
+		return this.buff;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length; id++){
+				for(var i=0; i < this.output_nodes[id].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			} 
+		}
+	}
+}
+export class DivNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Div";
+		this.desc = "value1 / value2";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.top_margin += this.desc_topmargin;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "output"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	// read from input node
+	readInput(){
+		this.buff = 0;
+		var tmp=0;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[0][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = tmp;
+			}
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[1][0].writeOutput());
+				// should I think of division 0?
+				if(!isNaN(tmp)) this.buff /= tmp;
+			}
+		}
+	}
+
+	// this is called from other nodes
+	writeOutput(){
+		return this.buff;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length; id++){
+				for(var i=0; i < this.output_nodes[id].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			} 
+		}
+	}
+}
+export class ModNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Mod";
+		this.desc = "value1 % value2";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.top_margin += this.desc_topmargin;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "output"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	// read from input node
+	readInput(){
+		this.buff = 0;
+		var tmp=0;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[0][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = tmp;
+			}
+			if(this.input_nodes[0].length > 0 ){
+				tmp = parseInt(this.input_nodes[1][0].writeOutput());
+				if(!isNaN(tmp)) this.buff = this.buff%tmp;
+			}
+		}
+	}
+
+	// this is called from other nodes
+	writeOutput(){
+		return this.buff;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			for(var id=0; id < this.output_nodes.length; id++){
+				for(var i=0; i < this.output_nodes[id].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[id][i]);
+				}
+			} 
+		}
+	}
+}
+
+export class PrintCSNode extends NodeTemplate{
+	constructor(p,pos_x, pos_y, color, select_color, on_color, calc_queue){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Print";
+		this.desc = "print to \nconsole.";
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, ""));
+
+		this.buff = "";
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+		
+		this.p5js.pop()
+		this.p5js.push()
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.text(this.desc, this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		this.p5js.pop();
+	}
+	readInput(){
+		if(this.input_nodes != []) this.buff = this.input_nodes[0][0].writeOutput();
+	}
+
+	run(){
+		this.readInput();
+		// print in console
+		console.log(this.buff);
+	}
+}
+
+export class ConditionalNode extends NodeTemplate{
+	constructor(p, pos_x, pos_y, color, select_color, on_color, calc_queue, select_box){
+		super(p, pos_x, pos_y, color, select_color, on_color, calc_queue);
+		this.name = "Condition";
+		this.val = "=";
+		this.top_margin = 55;
+		this.bottom_margin = 15;
+		this.desc_topmargin = 20;
+		this.desc_leftmargin = 10;
+		this.select_box_posx = this.x+15;
+		this.select_box_posy = this.y+this.h-20;
+
+		this.select_box = select_box;
+
+		this.buff = 0;
+
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "true"));
+		this.addComponent(output_component(this.p5js, this, this.h, this.components.length*this.component_margin+this.top_margin, 0, true, "false"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value1"));
+		this.addComponent(input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "value2"));
+	}
+
+	draw(){
+		this.p5js.push();
+
+		if(this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+		this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+		this.p5js.noFill();
+		if(this.select_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+		}else if(this.on_flag){
+			this.p5js.strokeWeight(2);
+			this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+		}else{
+			this.p5js.strokeWeight(1);
+			this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+		}
+		// outer bound
+		this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+		this.p5js.pop()
+		this.p5js.push()
+
+		this.p5js.textSize(this.head_font_size);
+		this.p5js.fill(0, 0, 0);
+		this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+		this.p5js.textSize(this.desc_font_size);
+		this.p5js.text("value1 "+this.val+" value2", this.x+this.desc_leftmargin, this.y+this.name_margin+this.desc_topmargin);
+
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].draw();
+
+		this.p5js.pop();
+	}
+	
+	setField(){
+		//this.select_box.option(this.select_options);
+		//this._setOptionToSelect();
+		this.select_box.value(this.val);
+		this.select_box_posx = this.x+15;
+		this.select_box_posy = this.y+this.h-20;
+		this.select_box.position(this.select_box_posx, this.select_box_posy);
+		this.select_box.show();
+	}
+
+	updateComponentPos(){
+		for(var i=0, len = this.components.length; i < len; i++) this.components[i].setPos(this.x, this.y);
+		
+		// outer stroke
+		this.margin_x = this.x-this.margin;
+		this.margin_y = this.y-this.margin;
+		this.margin_w = this.w+this.margin*2;
+		this.margin_h = this.h+this.margin*2;
+
+		this.select_box_posx = this.x+15;
+		this.select_box_posy = this.y+this.h-20;
+		this.select_box.position(this.select_box_posx, this.select_box_posy);
+	}
+
+	// read from input node
+	readInput(){
+		this.buff = false;
+		var val1, val2;
+		if(this.input_nodes.length == 2){
+			if(this.input_nodes[0].length == 0 ) return;
+			val1 = parseInt(this.input_nodes[0][0].writeOutput());
+			if(isNaN(val1)) return;
+			
+			if(this.input_nodes[1].length == 0 ) return;
+			val2 = parseInt(this.input_nodes[1][0].writeOutput());
+			if(isNaN(val2)) return;
+
+			if(this.val == "=") this.buff = (val1 == val2);
+			else if(this.val == "≠") this.buff = (val1 != val2);
+			else if(this.val == ">") this.buff = (val1 > val2);
+			else if(this.val == "≧") this.buff = (val1 >= val2);
+			else if(this.val == "<") this.buff = (val1 < val2);
+			else if(this.val == "≦") this.buff = (val1 <= val2);
+		}
+	}
+	writeOutput(){
+		return this.buff;
+	}
+
+	hideField(){
+		this.select_box.hide();
+	}
+
+	hasField(){
+		return true;
+	}
+
+	run(){
+		this.readInput();
+		if(this.output_nodes != []){
+			if(this.buff){
+				for(var i=0; i < this.output_nodes[0].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[0][i]);
+				}
+			}else{
+				for(var i=0; i < this.output_nodes[1].length; i++){
+					// i should add in forwarding queue.
+					this.calc_queue.addQueue(this.output_nodes[1][i]);
+				} 
+			}
+		}
+	}
+}
+*/
+
+var adjust_x = -50;
+var adjust_y = -50;
+
+var MenuNode = exports.MenuNode = function (_NodeTemplate) {
+	_inherits(MenuNode, _NodeTemplate);
+
+	function MenuNode(p, relative_pos_x, relative_pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, MenuNode);
+
+		var _this = _possibleConstructorReturn(this, (MenuNode.__proto__ || Object.getPrototypeOf(MenuNode)).call(this, p, relative_pos_x, relative_pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this.name = "";
+		_this.desc = "";
+		_this.relative_pos_x = relative_pos_x;
+		_this.relative_pos_y = relative_pos_y;
+		_this.setPos(p.windowWidth / 2 + relative_pos_x + adjust_x, p.windowHeight / 2 + relative_pos_y + adjust_y);
+		_this.w = 100;
+		_this.h = 100;
+		_this.desc_topmargin = 0;
+		_this.desc_leftmargin = 10;
+		_this.ext_arg = null;
+
+		_this.node_id = node_id;
+
+		_this.buff = "";
+		return _this;
+	}
+
+	_createClass(MenuNode, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			this.p5js.text(this.name, this.x + this.name_margin, this.y + this.name_margin);
+			this.p5js.text(this.desc, this.x + this.desc_leftmargin, this.y + this.name_margin + this.desc_topmargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "updatePos",
+		value: function updatePos() {
+			this.setPos(this.p5js.windowWidth / 2 + this.relative_pos_x + adjust_x, this.p5js.windowHeight / 2 + this.relative_pos_y + adjust_y);
+		}
+	}, {
+		key: "setDrawManager",
+		value: function setDrawManager(que) {
+			this.draw_manager = que;
+		}
+	}, {
+		key: "setCallFunction",
+		value: function setCallFunction(func) {
+			this.call_func = func;
+		}
+	}, {
+		key: "setExtraArgument",
+		value: function setExtraArgument(arg) {
+			this.ext_arg = arg;
+		}
+	}, {
+		key: "genDevice",
+		value: function genDevice() {
+			;
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.call_func != null) {
+				if (this.ext_arg != null) this.draw_manager.pushDrawQueue(this.call_func(this.p5js, this.p5js.windowWidth / 2, this.p5js.windowHeight / 2, this.ext_arg));else this.draw_manager.pushDrawQueue(this.call_func(this.p5js, this.p5js.windowWidth / 2, this.p5js.windowHeight / 2));
+			}
+			// print in console
+			//console.log("menu pressed");
+		}
+	}]);
+
+	return MenuNode;
+}(_templates.NodeTemplate);
+
+var command_MenuNode = exports.command_MenuNode = function (_NodeTemplate2) {
+	_inherits(command_MenuNode, _NodeTemplate2);
+
+	function command_MenuNode(p, relative_pos_x, relative_pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, command_MenuNode);
+
+		var _this2 = _possibleConstructorReturn(this, (command_MenuNode.__proto__ || Object.getPrototypeOf(command_MenuNode)).call(this, p, relative_pos_x, relative_pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this2.name = "";
+		_this2.desc = "";
+		_this2.relative_pos_x = relative_pos_x;
+		_this2.relative_pos_y = relative_pos_y;
+		_this2.setPos(p.windowWidth / 2 + relative_pos_x + adjust_x, p.windowHeight / 2 + relative_pos_y + adjust_y);
+		_this2.w = 100;
+		_this2.h = 100;
+		_this2.desc_topmargin = 0;
+		_this2.desc_leftmargin = 10;
+		_this2.ext_arg = null;
+
+		_this2.node_id = node_id;
+
+		_this2.buff = "";
+		return _this2;
+	}
+
+	_createClass(command_MenuNode, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			this.p5js.text(this.name, this.x + this.name_margin, this.y + this.name_margin);
+			this.p5js.text(this.desc, this.x + this.desc_leftmargin, this.y + this.name_margin + this.desc_topmargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "updatePos",
+		value: function updatePos() {
+			this.setPos(this.p5js.windowWidth / 2 + this.relative_pos_x + adjust_x, this.p5js.windowHeight / 2 + this.relative_pos_y + adjust_y);
+		}
+	}, {
+		key: "setDrawManager",
+		value: function setDrawManager(que) {
+			this.draw_manager = que;
+		}
+	}, {
+		key: "setCallFunction",
+		value: function setCallFunction(func) {
+			this.call_func = func;
+		}
+	}, {
+		key: "setExtraArgument",
+		value: function setExtraArgument(arg) {
+			this.ext_arg = arg;
+		}
+	}, {
+		key: "genDevice",
+		value: function genDevice() {
+			;
+		}
+	}, {
+		key: "setFunctioin",
+		value: function setFunctioin(f) {
+			this.func = f;
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			this.func();
+		}
+	}]);
+
+	return command_MenuNode;
+}(_templates.NodeTemplate);
+
+var GetList = exports.GetList = function (_NodeTemplate3) {
+	_inherits(GetList, _NodeTemplate3);
+
+	function GetList(p, pos_x, pos_y, color, select_color, on_color, calc_queue, apiWrapper) {
+		var node_id = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
+
+		_classCallCheck(this, GetList);
+
+		var _this3 = _possibleConstructorReturn(this, (GetList.__proto__ || Object.getPrototypeOf(GetList)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this3.name = "get list";
+		_this3.desc = "print to \nconsole.";
+		_this3.top_margin = 55;
+		_this3.bottom_margin = 15;
+		_this3.desc_topmargin = 20;
+		_this3.desc_leftmargin = 10;
+		_this3.api_wrapper = apiWrapper;
+		_this3.device_id = null;
+
+		_this3.addComponent((0, _gen_component.io_input_component)(_this3.p5js, _this3, 0, _this3.components.length * _this3.component_margin + _this3.top_margin, 1, false, ""));
+
+		_this3.buff = "";
+		return _this3;
+	}
+
+	_createClass(GetList, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			this.p5js.text(this.name, this.x + this.name_margin, this.y + this.name_margin);
+			this.p5js.text(this.desc, this.x + this.desc_leftmargin, this.y + this.name_margin + this.desc_topmargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "readInput",
+		value: function readInput() {
+			if (this.input_nodes != []) this.buff = this.input_nodes[0][0].writeOutput();
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			console.log(this.api_wrapper.get.devices.toList());
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "GetList", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return GetList;
+}(_templates.NodeTemplate);
+
+var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
+	_inherits(MusicPlayerNode, _NodeTemplate4);
+
+	function MusicPlayerNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue, apiWrapper, device_id) {
+		var node_id = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
+
+		_classCallCheck(this, MusicPlayerNode);
+
+		var _this4 = _possibleConstructorReturn(this, (MusicPlayerNode.__proto__ || Object.getPrototypeOf(MusicPlayerNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this4.name = "Music Player";
+		_this4.desc = "id : ";
+
+		_this4.w = 150;
+		_this4.top_margin = 80;
+		_this4.desc_topmargin = 20;
+		_this4.desc_leftmargin = 10;
+		_this4.api_wrapper = apiWrapper;
+		_this4.comp_margin_y = 0;
+		_this4.comp_margin_x = _this4.w / (2.0 + 1);
+
+		_this4.random_min = 1;
+		_this4.random_max = 10;
+
+		_this4.device_id = device_id;
+		_this4.node_id = node_id;
+
+		console.log(_this4.node_id);
+		//this.device = this.api_wrapper.get.devices.toList(this.device_id);
+		var comp_id = 0;
+		//this.addComponent(io_input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "I/O", comp_id++));
+		//this.addComponent(option_input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "shuffle", comp_id++));
+		_this4.addComponent((0, _gen_component.io_input_component)(_this4.p5js, _this4, (_this4.components.length + 1) * _this4.comp_margin_x, _this4.comp_margin_y, 1, false, "I/O", comp_id++));
+		_this4.addComponent((0, _gen_component.option_input_component)(_this4.p5js, _this4, (_this4.components.length + 1) * _this4.comp_margin_x, _this4.comp_margin_y, 1, false, "shuffle", comp_id++));
+
+		_this4.buff = "";
+
+		_this4.readUpdate = _this4.readUpdate.bind(_this4);
+		_this4.device = _this4.api_wrapper.get.devices.find(_this4.device_id);
+		_this4.api_wrapper.get.devices.setEvent(_this4.readUpdate);
+
+		if (_this4.device != null) {
+			_this4.power_state = _this4.device.isON ? "On" : "Off";
+			//this.music_num = this.device.musicNumber;
+		} else {
+			_this4.power_state = "Unknown";
+			_this4.music_num = "Unknown";
+		}
+		return _this4;
+	}
+
+	_createClass(MusicPlayerNode, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			this.p5js.text(this.name, this.x + this.name_margin_left, this.y + this.name_margin_top);
+			this.p5js.text(this.desc + String(this.device_id) + "\npower : " + this.power_state + "\ntrack : " + this.music_num, this.x + this.desc_leftmargin, this.y + this.name_margin + this.desc_topmargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "setRunOption",
+		value: function setRunOption() {
+			this.run_option = true;
+		}
+	}, {
+		key: "readUpdate",
+		value: function readUpdate(device_list) {
+			var _this5 = this;
+
+			var filterLs = device_list.filter(function (element, index, array) {
+				return element.id === _this5.device_id;
+			});
+			if (filterLs.length > 0) {
+				this.device = filterLs[0];
+				this.power_state = this.device.isPlay ? "On" : "Off";
+				this.music_num = this.device.musicNumber;
+			}
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.run_option) {
+				this.runOption();
+				return;
+			} else if (this.device != null) {
+				this.device.isPlay = !this.device.isPlay;
+				this.power_state = this.device.isPlay ? "On" : "Off";
+				this.api_wrapper.set.updateDevice(this.device);
+			}
+		}
+	}, {
+		key: "runOption",
+		value: function runOption() {
+			this.run_option = false;
+			if (this.device != null) {
+				this.device.musicNumber = Math.floor(Math.random() * (this.random_max + 1 - this.random_min)) + this.random_min;
+				this.music_num = this.device.musicNumber;
+				console.log(this.device.musicNumber);
+				this.api_wrapper.set.updateDevice(this.device);
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "MusicPlayerNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": this.device_id, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return MusicPlayerNode;
+}(_templates.NodeTemplate);
+
+var SocketNode = exports.SocketNode = function (_NodeTemplate5) {
+	_inherits(SocketNode, _NodeTemplate5);
+
+	function SocketNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue, apiWrapper, device_id) {
+		var node_id = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
+
+		_classCallCheck(this, SocketNode);
+
+		var _this6 = _possibleConstructorReturn(this, (SocketNode.__proto__ || Object.getPrototypeOf(SocketNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this6.w = 150;
+
+		_this6.readUpdate = _this6.readUpdate.bind(_this6);
+
+		_this6.name = "Socket";
+		_this6.desc = "id : ";
+
+		_this6.top_margin = 80;
+		_this6.desc_topmargin = 20;
+		_this6.desc_leftmargin = 10;
+		_this6.comp_margin_y = 0;
+		_this6.comp_margin_x = _this6.w / (1.0 + 1);
+
+		_this6.api_wrapper = apiWrapper;
+
+		_this6.device_id = device_id;
+		//console.log(this.api_wrapper)
+		_this6.device = _this6.api_wrapper.get.devices.find(_this6.device_id);
+		_this6.api_wrapper.get.devices.setEvent(_this6.readUpdate);
+
+		var comp_id = 0;
+		//this.addComponent(io_input_component(this.p5js, this, 0, this.components.length*this.component_margin+this.top_margin, 1, false, "I/O", comp_id++));
+		_this6.addComponent((0, _gen_component.io_input_component)(_this6.p5js, _this6, (_this6.components.length + 1) * _this6.comp_margin_x, _this6.comp_margin_y, 1, false, "I/O", comp_id++));
+
+		if (_this6.device != null) _this6.power_state = _this6.device.isON ? "On" : "Off";else _this6.power_state = "Unknown";
+		return _this6;
+	}
+
+	_createClass(SocketNode, [{
+		key: "readUpdate",
+		value: function readUpdate(device_list) {
+			var _this7 = this;
+
+			var filterLs = device_list.filter(function (element, index, array) {
+				return element.id === _this7.device_id;
+			});
+			if (filterLs.length > 0) {
+				this.device = filterLs[0];
+				this.power_state = this.device.isON ? "On" : "Off";
+			}
+		}
+	}, {
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			//this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+			this.p5js.text(this.name, this.x + this.name_margin_left, this.y + this.name_margin_top);
+			this.p5js.text(this.desc + String(this.device_id) + "\npower : " + this.power_state, this.x + this.desc_leftmargin, this.y + this.name_margin + this.desc_topmargin);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "setRunOption",
+		value: function setRunOption() {
+			//this.run_option = true;
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.device != null) {
+				this.device.isON = !this.device.isON;
+				this.power_state = this.device.isON ? "On" : "Off";
+				this.api_wrapper.set.updateDevice(this.device);
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "SocketNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": this.device_id, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return SocketNode;
+}(_templates.NodeTemplate);
+
+var IOButtonNode = exports.IOButtonNode = function (_NodeTemplate6) {
+	_inherits(IOButtonNode, _NodeTemplate6);
+
+	function IOButtonNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, IOButtonNode);
+
+		var _this8 = _possibleConstructorReturn(this, (IOButtonNode.__proto__ || Object.getPrototypeOf(IOButtonNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this8.name = "Button";
+		_this8.desc = "";
+		_this8.comp_margin_y = -5;
+		_this8.comp_margin_x = _this8.w / (1.0 + 1);
+
+		var comp_id = 0;
+		//this.addComponent(io_output_component(this.p5js, this, this.w, 20, 0, true, "I/O", comp_id++));
+		_this8.addComponent((0, _gen_component.io_output_component)(_this8.p5js, _this8, (_this8.components.length + 1) * _this8.comp_margin_x, _this8.h + _this8.comp_margin_y, 0, true, "I/O", comp_id++));
+		_this8.addComponent((0, _gen_component.button_component)(_this8.p5js, _this8, 10, 10, 0, false, "switch", comp_id++));
+		return _this8;
+	}
+
+	_createClass(IOButtonNode, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.pop();
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.output_nodes != []) {
+				for (var id = 0; id < this.output_nodes.length; id++) {
+					for (var i = 0; i < this.output_nodes[id].length; i++) {
+						// i should add in forwarding queue.
+						this.calc_queue.addQueue(this.output_nodes[id][i]);
+					}
+				}
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "IOButtonNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return IOButtonNode;
+}(_templates.NodeTemplate);
+
+var OptionButtonNode = exports.OptionButtonNode = function (_NodeTemplate7) {
+	_inherits(OptionButtonNode, _NodeTemplate7);
+
+	function OptionButtonNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, OptionButtonNode);
+
+		var _this9 = _possibleConstructorReturn(this, (OptionButtonNode.__proto__ || Object.getPrototypeOf(OptionButtonNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this9.name = "Option1";
+		_this9.desc = "";
+		_this9.comp_margin_y = 0;
+		_this9.comp_margin_x = _this9.w / (1.0 + 1);
+
+		var comp_id = 0;
+		//this.addComponent(option_output_component(this.p5js, this, this.w, 20, 0, true, "Option", comp_id++));
+		_this9.addComponent((0, _gen_component.option_output_component)(_this9.p5js, _this9, (_this9.components.length + 1) * _this9.comp_margin_x, _this9.h + _this9.comp_margin_y, 0, true, "Option", comp_id++));
+		_this9.addComponent((0, _gen_component.button_component)(_this9.p5js, _this9, 10, 10, 0, false, "switch", comp_id++));
+		return _this9;
+	}
+
+	_createClass(OptionButtonNode, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.pop();
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.output_nodes != []) {
+				for (var id = 0; id < this.output_nodes.length; id++) {
+					for (var i = 0; i < this.output_nodes[id].length; i++) {
+						// i should add in forwarding queue.
+						this.output_nodes[id][i].setRunOption();
+						this.calc_queue.addQueue(this.output_nodes[id][i]);
+					}
+				}
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "OptionButtonNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return OptionButtonNode;
+}(_templates.NodeTemplate);
+
+var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
+	_inherits(AccelerationNode, _NodeTemplate8);
+
+	function AccelerationNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, AccelerationNode);
+
+		var _this10 = _possibleConstructorReturn(this, (AccelerationNode.__proto__ || Object.getPrototypeOf(AccelerationNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this10.name = "Accele.";
+		_this10.desc = "";
+		_this10.comp_margin_y = -5;
+		_this10.comp_margin_x = _this10.w / (1.0 + 1);
+
+		var comp_id = 0;
+		_this10.run = _this10.run.bind(_this10);
+		_this10.setup_listener = _this10.setup_listener.bind(_this10);
+		//this.addComponent(io_output_component(this.p5js, this, this.w, 20, 0, true, "I/O", comp_id++));
+		_this10.addComponent((0, _gen_component.io_output_component)(_this10.p5js, _this10, (_this10.components.length + 1) * _this10.comp_margin_x, _this10.h + _this10.comp_margin_y, 0, true, "I/O", comp_id++));
+		/*
+  (setup_listener(){
+  	window.addEventListener("devicemotion", function(e){
+  		//加速度
+  		var acc = e.acceleration;
+  		var x = obj2NumberFix(acc.x, 5);
+  		var y = obj2NumberFix(acc.y, 5);
+  		var z = obj2NumberFix(acc.z, 5);
+  		//傾き(重力加速度)
+  		var acc_g = e.accelerationIncludingGravity;
+  		var gx = obj2NumberFix(acc_g.x, 5);
+  		var gy = obj2NumberFix(acc_g.y, 5);
+  		var gz = obj2NumberFix(acc_g.z, 5);
+  		//回転値
+  		var rota_r = e.rotationRate;
+  		var a = obj2NumberFix(rota_r.alpha, 5); //z方向
+  		var b = obj2NumberFix(rota_r.beta, 5); //x方向
+  		var g = obj2NumberFix(rota_r.gamma, 5); // y方向
+  		//表示
+  		});
+  })()
+  */
+		return _this10;
+	}
+
+	_createClass(AccelerationNode, [{
+		key: "setup_listener",
+		value: function setup_listener() {
+			window.addEventListener("devicemotion", function (e) {
+				//加速度
+				var acc = e.acceleration;
+				var x = obj2NumberFix(acc.x, 5);
+				var y = obj2NumberFix(acc.y, 5);
+				var z = obj2NumberFix(acc.z, 5);
+				//傾き(重力加速度)
+				var acc_g = e.accelerationIncludingGravity;
+				var gx = obj2NumberFix(acc_g.x, 5);
+				var gy = obj2NumberFix(acc_g.y, 5);
+				var gz = obj2NumberFix(acc_g.z, 5);
+				//回転値
+				var rota_r = e.rotationRate;
+				var a = obj2NumberFix(rota_r.alpha, 5); //z方向
+				var b = obj2NumberFix(rota_r.beta, 5); //x方向
+				var g = obj2NumberFix(rota_r.gamma, 5); // y方向
+
+				function obj2NumberFix(obj, fix_deg) {
+					return Number(obj).toFixed(fix_deg);
+				}
+
+				if (x * x + y * y + z * z > 10) {
+					this.run();
+				}
+			});
+		}
+	}, {
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			//this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+			this.p5js.text(this.name, this.x + this.name_margin_left, this.y + this.name_margin_top);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.output_nodes != []) {
+				for (var id = 0; id < this.output_nodes.length; id++) {
+					for (var i = 0; i < this.output_nodes[id].length; i++) {
+						// i should add in forwarding queue.
+						this.calc_queue.addQueue(this.output_nodes[id][i]);
+					}
+				}
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "AccelerationNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return AccelerationNode;
+}(_templates.NodeTemplate);
+
+},{"./gen_component.js":14,"./templates.js":21}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var CalcQueue = exports.CalcQueue = function () {
+	function CalcQueue() {
+		_classCallCheck(this, CalcQueue);
+
+		this.queue_1 = [];
+		this.queue_2 = [];
+		this.option_queue_1 = [];
+		this.option_queue_2 = [];
+		this.flag = true;
+	}
+
+	_createClass(CalcQueue, [{
+		key: 'runCalc',
+		value: function runCalc() {
+			if (this.flag) {
+				this.flag = false;
+				for (var i = 0; i < this.queue_1.length; i++) {
+					this.queue_1[i].run();
+				}
+				this.queue_1 = [];
+			} else {
+				this.flag = true;
+				for (var i = 0; i < this.queue_2.length; i++) {
+					this.queue_2[i].run();
+				}
+				this.queue_2 = [];
+			}
+		}
+	}, {
+		key: 'addQueue',
+		value: function addQueue(que) {
+			if (this.flag) {
+				this.queue_1.push(que);
+			} else {
+				this.queue_2.push(que);
+			}
+		}
+	}]);
+
+	return CalcQueue;
+}();
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Color = exports.Color = function () {
+	function Color(r, g, b) {
+		_classCallCheck(this, Color);
+
+		this.r = r;
+		this.g = g;
+		this.b = b;
+	}
+
+	_createClass(Color, [{
+		key: 'setColor',
+		value: function setColor(r, g, b) {
+			this.r = r;
+			this.g = g;
+			this.b = b;
+		}
+	}, {
+		key: 'getColor',
+		value: function getColor() {
+			return this.r, this.g, this.b;
+		}
+	}]);
+
+	return Color;
+}();
+
+},{}],13:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+	value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DrawManager = exports.DrawManager = function () {
+	function DrawManager() {
+		_classCallCheck(this, DrawManager);
+
+		this.p5js = null;
+		this.draw_queue = [];
+		this.edge_queue = [];
+		this.menu_queue = [];
+		this.menu_flag = false;
+		this.state_manager = null;
+		this.most_large_id = 0;
+	}
+
+	_createClass(DrawManager, [{
+		key: "draw",
+		value: function draw() {
+			for (var i = 0, len = this.draw_queue.length; i < len; i++) {
+				this.draw_queue[i].draw();
+			}
+			for (var i = 0, len = this.edge_queue.length; i < len; i++) {
+				this.edge_queue[i].draw();
+			}
+
+			if (this.menu_flag) {
+				for (var i = 0; i < this.menu_queue.length; i++) {
+					this.menu_queue[i].draw();
+				}
+			}
+		}
+	}, {
+		key: "setDrawingContext",
+		value: function setDrawingContext(p) {
+			this.p5js = p;
+		}
+	}, {
+		key: "setStateManager",
+		value: function setStateManager(state_manager) {
+			this.state_manager = state_manager;
+		}
+	}, {
+		key: "setDrawMenuFlag",
+		value: function setDrawMenuFlag(flag) {
+			this.menu_flag = flag;
+		}
+	}, {
+		key: "getDrawMenuFlag",
+		value: function getDrawMenuFlag() {
+			return this.menu_flag;
+		}
+	}, {
+		key: "getMenuQueue",
+		value: function getMenuQueue() {
+			return this.menu_queue;
+		}
+	}, {
+		key: "getDrawQueue",
+		value: function getDrawQueue() {
+			return this.draw_queue;
+		}
+	}, {
+		key: "getEdgeQueue",
+		value: function getEdgeQueue() {
+			return this.edge_queue;
+		}
+	}, {
+		key: "restoreNode",
+		value: function restoreNode(node) {
+			//console.log(node)
+			this.draw_queue.push(node);
+			if (this.most_large_id > node.getNodeID()) {
+				this.most_large_id = node.getNodeID();
+				this.state_manager.setNextID(this.most_large_id);
+				this.state_manager.incrementID();
+			}
+		}
+	}, {
+		key: "pushMenuQueue",
+		value: function pushMenuQueue(obj) {
+			this.menu_queue.push(obj);
+			obj.setNodeID(this.state_manager.getNewID());
+			this.state_manager.incrementID();
+		}
+	}, {
+		key: "pushDrawQueue",
+		value: function pushDrawQueue(obj) {
+			this.draw_queue.push(obj);
+			obj.setNodeID(this.state_manager.getNewID());
+			this.state_manager.incrementID();
+		}
+	}, {
+		key: "delDrawQueue",
+		value: function delDrawQueue(index) {
+			if (!isNaN(index)) this.draw_queue.splice(index, 1);
+		}
+	}, {
+		key: "pushEdgeQueue",
+		value: function pushEdgeQueue(obj) {
+			this.edge_queue.push(obj);
+			this.state_manager.incrementID();
+		}
+	}, {
+		key: "delEdgeQueue",
+		value: function delEdgeQueue(index) {
+			if (!isNaN(index)) this.edge_queue.splice(index, 1);
+		}
+	}]);
+
+	return DrawManager;
+}();
+
+},{}],14:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.input_component = input_component;
+exports.output_component = output_component;
+exports.button_component = button_component;
+exports.io_input_component = io_input_component;
+exports.io_output_component = io_output_component;
+exports.option_input_component = option_input_component;
+exports.option_output_component = option_output_component;
+
+var _misc = require("./misc.js");
+
+var _base_component = require("./base_component.js");
+
+function input_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Input(p, parent, relative_pos_x, relative_pos_y, _misc.input_color, _misc.input_select_color, _misc.input_on_color, flag_forward, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_val);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function output_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Output(p, parent, relative_pos_x, relative_pos_y, _misc.output_color, _misc.output_select_color, _misc.output_on_color, flag_forward, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_val);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function button_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Button(p, parent, relative_pos_x, relative_pos_y, _misc.button_color, _misc.output_select_color, _misc.output_on_color, flag_forward, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_none);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function io_input_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Input(p, parent, relative_pos_x, relative_pos_y, _misc.input_color, _misc.input_select_color, _misc.input_on_color, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_io);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function io_output_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Output(p, parent, relative_pos_x, relative_pos_y, _misc.output_color, _misc.output_select_color, _misc.output_on_color, flag_forward, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_io);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function option_input_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Input(p, parent, relative_pos_x, relative_pos_y, _misc.input_color, _misc.input_select_color, _misc.input_on_color, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_option);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+function option_output_component(p, parent, relative_pos_x, relative_pos_y, max_conn, flag_forward, name) {
+	var comp_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+	var component = new _base_component.Output(p, parent, relative_pos_x, relative_pos_y, _misc.output_color, _misc.output_select_color, _misc.output_on_color, flag_forward, comp_id);
+	component.setInstance(component);
+	component.setName(name);
+	component.setProperty(_misc.component_type_option);
+	component.setConnectableNum(max_conn);
+
+	return component;
+}
+
+},{"./base_component.js":9,"./misc.js":16}],15:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.get_list = get_list;
+exports.music_player = music_player;
+exports.socket = socket;
+exports.IoTNode = IoTNode;
+exports.io_button = io_button;
+exports.option_button = option_button;
+exports.acce_node = acce_node;
+exports.menu_node = menu_node;
+
+var _misc = require("./misc.js");
+
+var _base_node = require("./base_node.js");
+
+/*
+export function add_node(p,x,y){
+	var nd = new AddNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function sub_node(p,x,y){
+	var nd = new SubNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function mul_node(p,x,y){
+	var nd = new MulNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function div_node(p,x,y){
+	var nd = new DivNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function mod_node(p,x,y){
+	var nd = new ModNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function const_node(p,x,y, input_field){
+	var nd = new ConstNode(p, x, y, default_color, select_color, on_color, calc_queue, input_field);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function conditional_node(p,x,y, select_condition){
+	var nd = new ConditionalNode(p, x, y, default_color, select_color, on_color, calc_queue, select_condition);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function printc_node(p,x,y){
+	var nd = new PrintCSNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	nd.init()
+
+	return nd
+}
+
+export function button_node(p,x,y){
+	var nd = new ButtonNode(p, x, y, default_color, select_color, on_color, calc_queue);
+	nd.setInstance(nd);
+	// not calling init()
+
+	return nd
+}
+*/
+
+function get_list(p, x, y, apiWrapper) {
+	var nd = new _base_node.GetList(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper);
+	nd.setInstance(nd);
+	nd.init();
+
+	return nd;
+}
+
+function music_player(p, x, y, apiWrapper, device_id) {
+	var nd = new _base_node.MusicPlayerNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper, device_id);
+	nd.setInstance(nd);
+	nd.init();
+
+	return nd;
+}
+
+function socket(p, x, y, apiWrapper, device_id) {
+	var nd = new _base_node.SocketNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper, device_id); //6 is only a test id
+	nd.setInstance(nd);
+	nd.init();
+
+	return nd;
+}
+
+function IoTNode(p, apiWrapper, device) {
+	if (device instanceof Socket) {
+		;
+	}
+}
+
+function io_button(p, x, y) {
+	var nd = new _base_node.IOButtonNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+	nd.setInstance(nd);
+	// not calling init()
+
+	return nd;
+}
+
+function option_button(p, x, y) {
+	var nd = new _base_node.OptionButtonNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+	nd.setInstance(nd);
+	// not calling init()
+
+	return nd;
+}
+
+function acce_node(p, x, y) {
+	var nd = new _base_node.AccelerationNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+	nd.setInstance(nd);
+	// not calling init()
+
+	return nd;
+}
+
+// position x, y is originated at center of the window.
+function menu_node(p, x, y, call_function, desc, extra_arg, node_id) {
+	var nd = new _base_node.MenuNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+	nd.setInstance(nd);
+	nd.setCallFunction(call_function);
+	nd.setDrawManager(_misc.draw_manager);
+	if (extra_arg != null) nd.setExtraArgument(extra_arg);
+	nd.setDescription(desc);
+	// not calling init()
+
+	return nd;
+}
+
+},{"./base_node.js":10,"./misc.js":16}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.edge_fcolor = exports.edge_color = exports.button_color = exports.default_color = exports.select_color = exports.on_color = exports.trigger_on_color = exports.trigger_select_color = exports.trigger_color = exports.output_on_color = exports.output_select_color = exports.output_color = exports.input_on_color = exports.input_select_color = exports.input_color = exports.component_type_none = exports.component_type_option = exports.component_type_io = exports.component_type_cond = exports.component_type_str = exports.component_type_trig = exports.component_type_val = exports.node_manager = exports.draw_manager = exports.calc_queue = exports.state_manager = exports.condition_options = undefined;
+
+var _color = require("./color.js");
+
+var _state_manager = require("./state_manager.js");
+
+var _draw_manager = require("./draw_manager.js");
+
+var _calc_queue = require("./calc_queue.js");
+
+var _node_manager = require("./node_manager.js");
+
+/*
+	misc for the application
+*/
+
+var condition_options = exports.condition_options = ["=", "≠", ">", "≧", "<", "≦"];
+
+var state_manager = exports.state_manager = new _state_manager.StateManager();
+var calc_queue = exports.calc_queue = new _calc_queue.CalcQueue();
+var draw_manager = exports.draw_manager = new _draw_manager.DrawManager();
+var node_manager = exports.node_manager = new _node_manager.NodeManager();
+
+// component type
+var component_type_val = exports.component_type_val = "val";
+var component_type_trig = exports.component_type_trig = "trig";
+var component_type_str = exports.component_type_str = "str";
+var component_type_cond = exports.component_type_cond = "cond";
+var component_type_io = exports.component_type_io = "I/O";
+var component_type_option = exports.component_type_option = "option";
+var component_type_none = exports.component_type_none = "none";
+
+// Default color
+var input_color = exports.input_color = new _color.Color(10, 150, 30);
+var input_select_color = exports.input_select_color = new _color.Color(255, 0, 100);
+var input_on_color = exports.input_on_color = new _color.Color(255, 120, 50);
+
+var output_color = exports.output_color = new _color.Color(150, 20, 200);
+var output_select_color = exports.output_select_color = new _color.Color(255, 0, 100);
+var output_on_color = exports.output_on_color = new _color.Color(255, 120, 50);
+
+var trigger_color = exports.trigger_color = new _color.Color(180, 180, 30);
+var trigger_select_color = exports.trigger_select_color = new _color.Color(255, 0, 100);
+var trigger_on_color = exports.trigger_on_color = new _color.Color(255, 120, 50);
+
+var on_color = exports.on_color = new _color.Color(255, 255, 255);
+var select_color = exports.select_color = new _color.Color(255, 10, 50);
+var default_color = exports.default_color = new _color.Color(150, 150, 150);
+
+var button_color = exports.button_color = new _color.Color(0, 0, 0);
+
+var edge_color = exports.edge_color = new _color.Color(20, 180, 254);
+var edge_fcolor = exports.edge_fcolor = new _color.Color(250, 30, 80);
+
+},{"./calc_queue.js":11,"./color.js":12,"./draw_manager.js":13,"./node_manager.js":17,"./state_manager.js":20}],17:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.NodeManager = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _misc = require("./misc.js");
+
+var _base_node = require("./base_node.js");
+
+var _Devices = require("./APIWrapper/Devices.js");
+
+var _base_class = require("./base_class.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var NodeManager = exports.NodeManager = function () {
+	function NodeManager() {
+		_classCallCheck(this, NodeManager);
+
+		this.p5js = null;
+		this.api_wrapper = null;
+		this.draw_manager = null;
+		this.margin_per_node = 60;
+		this.init_gen_node_x = 100;
+		this.init_gen_node_y = 300;
+		this.iot_list = [];
+
+		this.readUpdate = this.readUpdate.bind(this);
+	}
+
+	_createClass(NodeManager, [{
+		key: "setDrawContext",
+		value: function setDrawContext(p5js) {
+			this.p5js = p5js;
+		}
+	}, {
+		key: "setApiWrapper",
+		value: function setApiWrapper(api) {
+			this.api_wrapper = api;
+		}
+	}, {
+		key: "setDrawManager",
+		value: function setDrawManager(dm) {
+			this.draw_manager = dm;
+		}
+	}, {
+		key: "startWatching",
+		value: function startWatching() {
+			this.api_wrapper.get.devices.setEvent(this.readUpdate);
+		}
+	}, {
+		key: "readUpdate",
+		value: function readUpdate(device_list) {
+			// not thinking that devices will decrease;
+			if (device_list == null) return;
+
+			var update_list = [];
+			var new_list = [];
+
+			for (var i = 0; i < device_list.length; i++) {
+				for (var j = 0; j < this.iot_list.length; j++) {
+					if (this.iot_list[j].id == device_list[i].id) {
+						new_list.push(device_list[i]);
+						break;
+					}
+				}
+				update_list.push(device_list[i]);
+				new_list.push(device_list[i]);
+			}
+			print(update_list);
+			print(new_list);
+			this.addIoTNode(update_list);
+			this.iot_list = new_list;
+		}
+	}, {
+		key: "addIoTNode",
+		value: function addIoTNode(devices) {
+			for (var i = 0; i < devices.length; i++) {
+				if (devices[i] instanceof _Devices.Socket) {
+					this.draw_manager.pushDrawQueue(this.socket(this.p5js, this.init_gen_node_x + this.margin_per_node * i, this.init_gen_node_y, this.api_wrapper, devices[i].id));
+				} else if (devices[i] instanceof _Devices.MP3Player) {
+					this.draw_manager.pushDrawQueue(this.music_player(this.p5js, this.init_gen_node_x + this.margin_per_node * i, this.init_gen_node_y, this.api_wrapper, devices[i].id));
+				} else {
+					console.log("unknown device instance.");
+				}
+			}
+		}
+
+		// very bad code, but it's not good choice to refactor now...
+
+	}, {
+		key: "restoreNode",
+		value: function restoreNode(json_object) {
+			var tmp = null;
+			var store_node = [];
+			var out_list = [];
+			//console.log(json_object["node"]);
+			for (var i = 0; i < json_object["node"].length; i++) {
+				//console.log(json_object["node"][i]);
+				if (json_object["node"][i]["node_name"] == "MusicPlayerNode") {
+					console.log(json_object["node"][i]["node_pos"][0]);
+					tmp = new _base_node.MusicPlayerNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, this.api_wrapper, json_object["node"][i]["device_id"], json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+					tmp.init();
+					this.draw_manager.restoreNode(tmp);
+					store_node.push(tmp);
+				} else if (json_object["node"][i]["node_name"] == "SocketNode") {
+					tmp = new _base_node.SocketNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, this.api_wrapper, json_object["node"][i]["device_id"], json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+					tmp.init();
+					this.draw_manager.restoreNode(tmp);
+					store_node.push(tmp);
+				} else if (json_object["node"][i]["node_name"] == "IOButtonNode") {
+					tmp = new _base_node.IOButtonNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+					tmp.init();
+					this.draw_manager.restoreNode(tmp);
+					out_list.push({ "output_node_id": json_object["node"][i]["node_id"], "output_target_id": json_object["node"][i]["output_node"], "type": 0 });
+					store_node.push(tmp);
+				} else if (json_object["node"][i]["node_name"] == "OptionButtonNode") {
+					tmp = new _base_node.OptionButtonNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+
+					this.draw_manager.restoreNode(tmp);
+					out_list.push({ "output_node_id": json_object["node"][i]["node_id"], "output_target_id": json_object["node"][i]["output_node"], "type": 1 });
+					store_node.push(tmp);
+				} else {
+					console.log("Unkown Node was found.\nIgnore");
+					continue;
+				}
+			}
+
+			var queue_list = this.draw_manager.getDrawQueue();
+			var out_node = null;
+			for (var i = 0; i < out_list.length; i++) {
+				out_node = null;
+				for (var j = 0; j < queue_list.length; j++) {
+					if (out_list[i]["output_node_id"] == queue_list[j].getNodeID()) out_node = queue_list[j];
+				}
+
+				if (out_node != null) {
+					for (var k = 0; k < out_list[i]["output_target_id"].length; k++) {
+						for (var l = 0; l < queue_list.length; l++) {
+							if (out_list[i]["output_target_id"][k] == queue_list[l].getNodeID()) {
+								out_node.addOutputNode(queue_list[l], out_list[i]["type"]);
+								queue_list[l].addInputNode(out_node, 0);
+							}
+						}
+					}
+				}
+			}
+
+			var output_node = null;
+			var input_node = null;
+
+			var output_comp = null;
+			var input_comp = null;
+
+			for (var i = 0; i < json_object["edge"].length; i++) {
+				//console.log(json_object["node"][i]);
+				console.log(json_object["node"][i]["node_pos"][0]);
+				for (var j = 0; j < store_node.length; j++) {
+					if (json_object["edge"][i]["output_parent_id"] == store_node[j].getNodeID()) output_node = store_node[j];
+					if (json_object["edge"][i]["input_parent_id"] == store_node[j].getNodeID()) input_node = store_node[j];
+				}
+				// Edge(p, output_obj, input_obj, color
+				//tmp = new Edge(this.p5js, output_node, input_node, );
+
+				output_comp = output_node.getComponent(json_object["edge"][i]["output_component_id"]);
+				input_comp = input_node.getComponent(json_object["edge"][i]["input_component_id"]);
+
+				if (output_comp.isForwardable()) this.draw_manager.pushEdgeQueue(new _base_class.Edge(p, output_comp, input_comp, _misc.edge_fcolor));else this.draw_manager.pushEdgeQueue(new _base_class.Edge(this.p5js, output_comp, input_comp, _misc.edge_color));
+				//if( ins.isForwardable() || state_manager.getSelected().isForwardable()) draw_manager.pushEdgeQueue(new Edge(p, ins, state_manager.getSelected(), edge_fcolor));
+				//else draw_manager.pushEdgeQueue(new Edge(p, ins, state_manager.getSelected(), edge_color));
+				//tmp.setInstance(tmp);
+				//tmp.init()
+				//this.draw_manager.restoreNode(tmp);
+				//console.log(tmp);
+			}
+		}
+		/*
+  export function add_node(p,x,y){
+  	var nd = new AddNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function sub_node(p,x,y){
+  	var nd = new SubNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function mul_node(p,x,y){
+  	var nd = new MulNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function div_node(p,x,y){
+  	var nd = new DivNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function mod_node(p,x,y){
+  	var nd = new ModNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function const_node(p,x,y, input_field){
+  	var nd = new ConstNode(p, x, y, default_color, select_color, on_color, calc_queue, input_field);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function conditional_node(p,x,y, select_condition){
+  	var nd = new ConditionalNode(p, x, y, default_color, select_color, on_color, calc_queue, select_condition);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function printc_node(p,x,y){
+  	var nd = new PrintCSNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	nd.init()
+  
+  	return nd
+  }
+  
+  export function button_node(p,x,y){
+  	var nd = new ButtonNode(p, x, y, default_color, select_color, on_color, calc_queue);
+  	nd.setInstance(nd);
+  	// not calling init()
+  
+  	return nd
+  }
+  */
+
+	}, {
+		key: "get_list",
+		value: function get_list(p, x, y, apiWrapper) {
+			var nd = new _base_node.GetList(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper);
+			nd.setInstance(nd);
+			nd.init();
+
+			return nd;
+		}
+	}, {
+		key: "music_player",
+		value: function music_player(p, x, y, apiWrapper, device_id) {
+			var nd = new _base_node.MusicPlayerNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper, device_id);
+			nd.setInstance(nd);
+			nd.init();
+
+			return nd;
+		}
+	}, {
+		key: "socket",
+		value: function socket(p, x, y, apiWrapper, device_id) {
+			var nd = new _base_node.SocketNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, apiWrapper, device_id); //6 is only a test id
+			nd.setInstance(nd);
+			nd.init();
+
+			return nd;
+		}
+	}, {
+		key: "io_button",
+		value: function io_button(p, x, y) {
+			var nd = new IOButton(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+			nd.setInstance(nd);
+			// not calling init()
+
+			return nd;
+		}
+
+		// position x, y is originated at center of the window.
+
+	}, {
+		key: "menu_node",
+		value: function menu_node(p, x, y, call_function, desc, extra_arg, node_id) {
+			var nd = new _base_node.MenuNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+			nd.setInstance(nd);
+			nd.setCallFunction(call_function);
+			nd.setDrawManager(_misc.draw_manager);
+			if (extra_arg != null) nd.setExtraArgument(extra_arg);
+			nd.setDescription(desc);
+			// not calling init()
+
+			return nd;
+		}
+	}]);
+
+	return NodeManager;
+}();
+
+},{"./APIWrapper/Devices.js":6,"./base_class.js":8,"./base_node.js":10,"./misc.js":16}],18:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.P5App = undefined;
+
+var _base_node = require("./base_node.js");
+
+var _misc = require("./misc.js");
+
+var _gen_node = require("./gen_node.js");
+
+var _base_class = require("./base_class.js");
+
+var _node_manager = require("./node_manager.js");
+
+var _restore = require("./restore.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var P5App = exports.P5App = function P5App(apiWrapper) {
-    _classCallCheck(this, P5App);
+	_classCallCheck(this, P5App);
 
-    var s = app(apiWrapper);
-    var myp5 = new p5(s);
+	var s = app(apiWrapper);
+	var myp5 = new p5(s);
 };
 
 function app(apiWrapper) {
-    return function (p) {
-        p.setup = function () {
-            p.createCanvas(600, 400);
-        };
+	return function (p) {
+		p.setup = function () {
+			var canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+			canvas.parent("p5");
+			//p.createCanvas(p.displayWidth, p.displayHeight);
 
-        p.draw = function () {
-            p.ellipse(p.mouseX, p.mouseY, 20, 20);
-        };
-    };
+			//console.log(apiWrapper.get.devices.toList());
+
+			_misc.draw_manager.setDrawingContext(p);
+			_misc.draw_manager.setStateManager(_misc.state_manager);
+
+			_misc.node_manager.setDrawContext(p);
+			_misc.node_manager.setApiWrapper(apiWrapper);
+			_misc.node_manager.setDrawManager(_misc.draw_manager);
+
+			// for value nput 
+			var input_field = p.createInput();
+			input_field.input(update_val);
+			input_field.position(100, 100);
+			input_field.size(80);
+			input_field.style("background-color", p.color(220, 220, 220, 255));
+			input_field.style("text-align:right;");
+			input_field.hide();
+
+			// for dropdown box menu
+			var select_condition = p.createSelect();
+			select_condition.changed(update_val);
+			select_condition.position(100, 100);
+			select_condition.size(80);
+			for (var i = 0; i < _misc.condition_options.length; i++) {
+				select_condition.option(_misc.condition_options[i]);
+			}
+			select_condition.hide();
+
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, -70, _gen_node.acce_node, "加速度", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "option", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, -70, _gen_node.io_button, "スイッチ", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, null, "save", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, 70, null, "do nothing", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, 70, null, "do nothing", null));
+
+			// setting up the drawing object.
+			/*
+   draw_manager.pushDrawQueue(get_list(p, 400, 100, apiWrapper));
+   draw_manager.pushDrawQueue(const_node(p, 100, 100, input_field));
+   draw_manager.pushDrawQueue(printc_node(p, 600, 100));
+   draw_manager.pushDrawQueue(button_node(p, 100, 200));
+   draw_manager.pushDrawQueue(conditional_node(p, 300, 300, select_condition));
+   */
+
+			//draw_manager.pushDrawQueue(get_list(p, 400, 100, apiWrapper));
+			//draw_manager.pushDrawQueue(music_player(p, 200, 100, apiWrapper, 2));
+			//draw_manager.pushDrawQueue(socket(p, 200, 100, apiWrapper, "IoTSocket1"));
+		};
+
+		p.windowResized = function () {
+			p.resizeCanvas(p.windowWidth, p.windowHeight);
+			var menu_queue = _misc.draw_manager.getMenuQueue();
+
+			for (var i = 0; i < menu_queue.length; i++) {
+				menu_queue[i].updatePos();
+			}
+		};
+
+		p.keyTyped = function () {
+			// 32 = space, not working?
+			if (p.key == "s") (0, _restore.save_node)();else if (p.key == "r") (0, _restore.restore_node)(p);else if (p.key == "p") console.log(_misc.draw_manager.getDrawQueue());
+		};
+
+		var update_val = function update_val() {
+			_misc.state_manager.getSelected().setVal(this.value());
+		};
+
+		p.draw = function () {
+			p.background(70);
+
+			_misc.calc_queue.runCalc();
+
+			if (_misc.state_manager.isDoubleClicked()) {
+				_misc.draw_manager.setDrawMenuFlag(true);
+			} else {
+				_misc.state_manager.stepDoubleClickInterval();
+				_misc.draw_manager.setDrawMenuFlag(false);
+			}
+
+			_misc.draw_manager.draw();
+		};
+
+		/*
+  	called every time when mouse is moving
+  	check is mouse on the nodes or components
+  	and change the color if mouse is on them.
+  */
+		p.mouseMoved = function () {
+			_misc.state_manager.setMouseOn(false);
+			var ins = null;
+
+			// when the mouse is on the object, change the color.
+			if (_misc.draw_manager.getDrawMenuFlag()) {
+				var menu_queue = _misc.draw_manager.getMenuQueue();
+				// reversing for the order of the drawing objects
+				for (var len = menu_queue.length - 1; 0 <= len; len--) {
+					ins = menu_queue[len].returnMouseOnInstance(p.mouseX, p.mouseY);;
+					if (ins != null) {
+						if (_misc.state_manager.getMouseOnNode() != null && ins !== _misc.state_manager.getMouseOnNode()) {
+							_misc.state_manager.getMouseOnNode().setMouseOn(false);
+							_misc.state_manager.setMouseOnNode(ins);
+							ins.setMouseOn(true);
+							_misc.state_manager.setMouseOn(true);
+							break;
+						} else {
+							_misc.state_manager.setMouseOnNode(ins);
+							ins.setMouseOn(true);
+							_misc.state_manager.setMouseOn(true);
+							break;
+						}
+					}
+				}
+				if (_misc.state_manager.getMouseOnNode() != null && _misc.state_manager.getMouseOn() == false) {
+					_misc.state_manager.getMouseOnNode().setMouseOn(false);
+					_misc.state_manager.setMouseOnNode(null);
+				}
+				// same thing is written on here, so I should marge it...
+			} else {
+				var draw_queue = _misc.draw_manager.getDrawQueue();
+				for (var len = draw_queue.length - 1; 0 <= len; len--) {
+					ins = draw_queue[len].returnMouseOnInstance(p.mouseX, p.mouseY);
+					if (ins != null) {
+						if (_misc.state_manager.getMouseOnNode() != null && ins !== _misc.state_manager.getMouseOnNode()) {
+							_misc.state_manager.getMouseOnNode().setMouseOn(false);
+							_misc.state_manager.setMouseOnNode(ins);
+							ins.setMouseOn(true);
+							_misc.state_manager.setMouseOn(true);
+							break;
+						} else {
+							_misc.state_manager.setMouseOnNode(ins);
+							ins.setMouseOn(true);
+							_misc.state_manager.setMouseOn(true);
+							break;
+						}
+					}
+				}
+				if (_misc.state_manager.getMouseOnNode() != null && _misc.state_manager.getMouseOn() == false) {
+					_misc.state_manager.getMouseOnNode().setMouseOn(false);
+					_misc.state_manager.setMouseOnNode(null);
+				}
+			}
+		};
+
+		/*
+  	called every time when mouse is pressed.
+  */
+		p.mousePressed = function () {
+			_misc.state_manager.setDragged(false);
+			_misc.state_manager.setClearFlag(true);
+			_misc.state_manager.setMousePressedPos(p.mouseX, p.mouseY);
+
+			var ins = null;
+
+			if (_misc.draw_manager.getDrawMenuFlag()) {
+				var menu_queue = _misc.draw_manager.getMenuQueue();
+				// reversing for the order of the drawing objects
+				for (var len = menu_queue.length - 1; 0 <= len; len--) {
+					ins = menu_queue[len].returnMouseOnInstance(p.mouseX, p.mouseY);
+					if (ins != null) {
+						if (_misc.state_manager.getSelected() != null) {
+							// clear selected
+							_misc.state_manager.getSelected().setSelected(false);
+							if (_misc.state_manager.getSelected().hasField()) _misc.state_manager.getSelected().hideField();
+						}
+						ins.run();
+						break;
+					}
+				}
+				if (ins == null) {
+					_misc.state_manager.clickBG();
+				}
+			} else {
+				var draw_queue = _misc.draw_manager.getDrawQueue();
+				// reversing for the order of the drawing objects
+				for (var len = draw_queue.length - 1; 0 <= len; len--) {
+					ins = draw_queue[len].returnMouseOnInstance(p.mouseX, p.mouseY);
+					if (ins != null) {
+						// when the mouse press was on the  action node
+						if (ins.isComponent() && ins.hasForwarding() && _misc.state_manager.isDragged() == false) {
+							ins.run();
+							if (_misc.state_manager.getSelected() != null) {
+								_misc.state_manager.getSelected().setSelected(false);
+								if (_misc.state_manager.getSelected().hasField()) _misc.state_manager.getSelected().hideField();
+							}
+							if (ins.hasField()) ins.setField();
+
+							// draw selected node on the front
+							if (ins.isComponent() == false) {
+								_misc.draw_manager.delDrawQueue(len);
+								_misc.draw_manager.pushDrawQueue(ins);
+							}
+							_misc.state_manager.setSelected(ins.getParent());
+							ins.getParent().setSelected(true);
+							_misc.state_manager.setSelectedInitPos(ins.getX(), ins.getY());
+							// nothing was select and the selected object was not actioin node
+						} else if (_misc.state_manager.getSelected() == null) {
+							// draw selected node on the front
+							if (ins.isComponent() == false) {
+								_misc.draw_manager.delDrawQueue(len);
+								//draw_queue.splice(len, 1);
+								_misc.draw_manager.pushDrawQueue(ins);
+							}
+
+							_misc.state_manager.setSelected(ins);
+							ins.setSelected(true);
+							_misc.state_manager.setSelectedInitPos(ins.getX(), ins.getY());
+
+							if (ins.hasField()) ins.setField();
+							// if the pressed object was same as past which is in the state_manager
+						} else if (ins === _misc.state_manager.getSelected()) {
+							_misc.state_manager.setSelectedInitPos(ins.getX(), ins.getY());
+
+							// when the select and selected is a component, check an try to make link.
+						} else if (ins !== _misc.state_manager.getSelected() && _misc.state_manager.getSelected().isComponent() && ins.isComponent()) {
+							// components only reach here.
+							if (ins.getParent() !== _misc.state_manager.getSelected().getParent() && ins.isComponentValid(_misc.state_manager.getSelected())) {
+								var i = 0;
+								var edge_queue = _misc.draw_manager.getEdgeQueue();
+								for (; i < edge_queue.length; i++) {
+									// break when it has a connection between two input component
+									if (edge_queue[i].hasEdge(ins, _misc.state_manager.getSelected())) break;
+								}
+								// i == edge_queue.length means those components don't have connenction
+								if (i == edge_queue.length) {
+									if (ins.isConnectable() && _misc.state_manager.getSelected().isConnectable()) {
+										// making a new edge
+										if (ins.isForwardable() || _misc.state_manager.getSelected().isForwardable()) _misc.draw_manager.pushEdgeQueue(new _base_class.Edge(p, ins, _misc.state_manager.getSelected(), _misc.edge_fcolor));else _misc.draw_manager.pushEdgeQueue(new _base_class.Edge(p, ins, _misc.state_manager.getSelected(), _misc.edge_color));
+
+										ins.connect();
+										_misc.state_manager.getSelected().connect();
+										// adding Node to each other
+										if (ins.getIOType() == 0) {
+											_misc.state_manager.getSelected().getParent().addInputNode(ins.getParent(), _misc.state_manager.getSelected().getID());
+											ins.getParent().addOutputNode(_misc.state_manager.getSelected().getParent(), ins.getID());
+										} else {
+											_misc.state_manager.getSelected().getParent().addOutputNode(ins.getParent(), _misc.state_manager.getSelected().getID());
+											ins.getParent().addInputNode(_misc.state_manager.getSelected().getParent(), ins.getID());
+										}
+									}
+								} else {
+									// erasing edge
+									_misc.draw_manager.delEdgeQueue(i);
+
+									ins.disconnect();
+									_misc.state_manager.getSelected().disconnect();
+
+									if (ins.getIOType() == 0) {
+										_misc.state_manager.getSelected().getParent().delInputNode(ins.getParent(), _misc.state_manager.getSelected().getID());
+										ins.getParent().delOutputNode(_misc.state_manager.getSelected().getParent(), ins.getID());
+									} else {
+										_misc.state_manager.getSelected().getParent().delOutputNode(ins.getParent(), _misc.state_manager.getSelected().getID());
+										ins.getParent().delInputNode(_misc.state_manager.getSelected().getParent(), ins.getID());
+									}
+								}
+								// clear selected
+								_misc.state_manager.getSelected().setSelected(false);
+								if (_misc.state_manager.getSelected().hasField()) _misc.state_manager.getSelected().hideField();
+								_misc.state_manager.setSelected(null);
+							}
+						} else if (ins !== _misc.state_manager.getSelected()) {
+							_misc.state_manager.getSelected().setSelected(false);
+							if (_misc.state_manager.getSelected().hasField()) _misc.state_manager.getSelected().hideField();
+							if (ins.hasField()) ins.setField();
+
+							// draw selected node on the front
+							if (ins.isComponent() == false) {
+								_misc.draw_manager.delDrawQueue(len);
+								_misc.draw_manager.pushDrawQueue(ins);
+							}
+							_misc.state_manager.setSelected(ins);
+							ins.setSelected(true);
+							_misc.state_manager.setSelectedInitPos(ins.getX(), ins.getY());
+						}
+						_misc.state_manager.setClearFlag(false);
+						break;
+					}
+				}
+				if (_misc.state_manager.getSelected() != null && _misc.state_manager.getClearFlag() == true) {
+					// clear selected
+					_misc.state_manager.getSelected().setSelected(false);
+					if (_misc.state_manager.getSelected().hasField()) _misc.state_manager.getSelected().hideField();
+					_misc.state_manager.setSelected(null);
+				} else if (_misc.state_manager.getSelected() == null) {
+					_misc.state_manager.clickBG();
+				}
+			}
+		};
+
+		/*
+  	called every time when mouse is dragging.
+  */
+		p.mouseDragged = function () {
+			//console.log("dragged");
+			var at_least_on = false;
+			var ins = null;
+			var draw_queue = _misc.draw_manager.getDrawQueue();
+
+			_misc.state_manager.setDragged(true);
+
+			if (_misc.state_manager.getSelected() != null && !_misc.state_manager.getSelected().isComponent()) {
+				for (var len = draw_queue.length - 1; 0 <= len; len--) {
+					ins = draw_queue[len].returnMouseOnInstance(p.mouseX, p.mouseY);
+					if (ins != null && _misc.state_manager.getSelected() === ins) {
+						at_least_on = true;
+						break;
+					}
+				}
+				if (at_least_on) _misc.state_manager.getSelected().setPos(p.mouseX - (_misc.state_manager.getMousePressedPosX() - _misc.state_manager.getSelectedInitPosX()), p.mouseY - (_misc.state_manager.getMousePressedPosY() - _misc.state_manager.getSelectedInitPosY()));
+			}
+		};
+	};
 }
 
-},{}]},{},[7]);
+},{"./base_class.js":8,"./base_node.js":10,"./gen_node.js":15,"./misc.js":16,"./node_manager.js":17,"./restore.js":19}],19:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.save_node = save_node;
+exports.restore_node = restore_node;
+
+var _misc = require("./misc.js");
+
+function save_node() {
+	//var fs = WScript.CreateObject("Scripting.FileSystemObject");
+	//var file = fs.CreateTextFile("text.txt");
+	var nodes = [];
+	var edges = [];
+
+	var node_list = _misc.draw_manager.getDrawQueue();
+	var edge_list = _misc.draw_manager.getEdgeQueue();
+
+	for (var i = 0; i < node_list.length; i++) {
+		nodes.push(node_list[i].getInfo());
+	}
+
+	for (var i = 0; i < edge_list.length; i++) {
+		edges.push(edge_list[i].getInfo());
+	}
+	var output_text = window.JSON.stringify({ "node": nodes, "edge": edges });
+	console.log(output_text);
+	//file.Write(output_text)
+	//file.Close();
+}
+
+function restore_node(p) {
+	//var data = new XMLHttpRequest();	
+	//data.open("GET", "/Users/mau/Programs/class_ex/pbl-2017-make_life_app/frontend/sato/src/restore.txt", false); //true:非同期,false:同期
+	//data.send(null);
+
+	// test file, it should be placed in the directory of index.html
+	var result = p.loadStrings('./restore.txt', print);
+	//var LF = String.fromCharCode(10); //改行ｺｰﾄﾞ
+	/*var lines = data.responseText.split(LF);
+ for (var i = 0; i < lines.length;++i) {
+ 	var cells = lines[i].split(",");
+ 	if( cells.length != 1 ) {
+ 		csvData.push(cells);
+ 	}
+ }*/
+	/*
+ var reader = new FileReader();
+ reader.readAsText("./restore.txt");
+ data = JSON.parse(reader.result);
+ */
+}
+
+function print(result) {
+	console.log(result);
+	var data = window.JSON.parse(result);
+	_misc.node_manager.restoreNode(data);
+}
+
+},{"./misc.js":16}],20:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/*
+	Manage the state of Application.
+	mouse position, selecting node, flags...
+*/
+var StateManager = exports.StateManager = function () {
+	function StateManager() {
+		_classCallCheck(this, StateManager);
+
+		this.mouse_pressed_x = 0;
+		this.mouse_pressed_y = 0;
+		this.mouse_released_x = 0;
+		this.mouse_released_y = 0;
+
+		// tmp var and flags
+		// "node" should be changed to another word, because it's not only for Node now
+		this.selected_node = null;
+		this.clear_flag = true;
+
+		// "node" should be changed to another word, because it's not only for Node now
+		this.mouse_on_node = null;
+		this.mouse_on = false;
+
+		// "node" should be changed to another word, because it's not only for Node now
+		this.selected_node_init_x = 0;
+		// "node" should be changed to another word, because it's not only for Node now
+		this.selected_node_init_y = 0;
+
+		this.dragged_flag = false;
+
+		this.double_click = false;
+		// for me, about 0 count is fell good;
+		this.double_click_interval = 40;
+		this.click_flag = false;
+		this.interval = 0;
+
+		// use it for identify the objects uniquely
+		this.allocate_id = 0;
+		this.node_manager = null;
+	}
+
+	_createClass(StateManager, [{
+		key: "setNodeManager",
+		value: function setNodeManager(manager) {
+			this.node_manager = manager;
+		}
+	}, {
+		key: "getNewID",
+		value: function getNewID() {
+			return this.allocate_id;
+		}
+	}, {
+		key: "incrementID",
+		value: function incrementID() {
+			this.allocate_id += 1;
+		}
+	}, {
+		key: "setNextID",
+		value: function setNextID(id) {
+			this.allocate_id = id;
+		}
+
+		// it might be confusing, to use this in this architecture.
+
+	}, {
+		key: "decrementID",
+		value: function decrementID() {
+			if (this.allocate_id > 0) this.allocate_id -= 1;
+		}
+	}, {
+		key: "setMousePressedPos",
+		value: function setMousePressedPos(x, y) {
+			this.mouse_pressed_x = x;
+			this.mouse_pressed_y = y;
+		}
+	}, {
+		key: "getMousePressedPos",
+		value: function getMousePressedPos() {
+			return [this.mouse_pressed_x, this.mouse_pressed_y];
+		}
+	}, {
+		key: "getMousePressedPosX",
+		value: function getMousePressedPosX() {
+			return this.mouse_pressed_x;
+		}
+	}, {
+		key: "getMousePressedPosY",
+		value: function getMousePressedPosY() {
+			return this.mouse_pressed_y;
+		}
+	}, {
+		key: "setMouseReleasedPos",
+		value: function setMouseReleasedPos(x, y) {
+			this.mouse_released_x = x;
+			this.mouse_released_y = y;
+		}
+	}, {
+		key: "getMouseReleasedPos",
+		value: function getMouseReleasedPos() {
+			return [this.mouse_released_x, this.mouse_released_y];
+		}
+	}, {
+		key: "getMouseReleasedPosX",
+		value: function getMouseReleasedPosX() {
+			return this.mouse_released_x;
+		}
+	}, {
+		key: "getMouseReleasedPosY",
+		value: function getMouseReleasedPosY() {
+			return this.mouse_released_y;
+		}
+	}, {
+		key: "setSelected",
+		value: function setSelected(node) {
+			this.selected_node = node;
+		}
+	}, {
+		key: "getSelected",
+		value: function getSelected() {
+			return this.selected_node;
+		}
+	}, {
+		key: "setSelectedInitPos",
+		value: function setSelectedInitPos(x, y) {
+			this.selected_node_init_x = x;
+			this.selected_node_init_y = y;
+		}
+	}, {
+		key: "getSelectedInitPos",
+		value: function getSelectedInitPos() {
+			return [this.selected_node_init_x, this.selected_node_init_y];
+		}
+	}, {
+		key: "getSelectedInitPosX",
+		value: function getSelectedInitPosX() {
+			return this.selected_node_init_x;
+		}
+	}, {
+		key: "getSelectedInitPosY",
+		value: function getSelectedInitPosY() {
+			return this.selected_node_init_y;
+		}
+	}, {
+		key: "setClearFlag",
+		value: function setClearFlag(flag) {
+			this.clear_flag = flag;
+		}
+	}, {
+		key: "getClearFlag",
+		value: function getClearFlag() {
+			return this.clear_flag;
+		}
+
+		// "Node" should be changed to another word, because it's not only for Node now
+
+	}, {
+		key: "setMouseOnNode",
+		value: function setMouseOnNode(node) {
+			this.mouse_on_node = node;
+		}
+		// "Node" should be changed to another word, because it's not only for Node now
+
+	}, {
+		key: "getMouseOnNode",
+		value: function getMouseOnNode(node) {
+			return this.mouse_on_node;
+		}
+	}, {
+		key: "setMouseOn",
+		value: function setMouseOn(flag) {
+			this.mouse_on = flag;
+		}
+	}, {
+		key: "getMouseOn",
+		value: function getMouseOn() {
+			return this.mouse_on;
+		}
+	}, {
+		key: "isDragged",
+		value: function isDragged() {
+			return this.dragged_flag;
+		}
+	}, {
+		key: "setDragged",
+		value: function setDragged(flag) {
+			this.dragged_flag = flag;
+		}
+	}, {
+		key: "checkDoubleClick",
+		value: function checkDoubleClick() {
+			if (this.double_click) {
+				this.resetClick();
+				return false;
+			} else if (this.click_flag && this.interval < this.double_click_interval) {
+				return true;
+			}
+			return false;
+		}
+	}, {
+		key: "resetClick",
+		value: function resetClick() {
+			this.double_click = false;
+			this.click_flag = false;
+			this.interval = 0;
+		}
+	}, {
+		key: "clickBG",
+		value: function clickBG() {
+			if (this.checkDoubleClick()) this.double_click = true;else this.click_flag = true;
+		}
+	}, {
+		key: "stepDoubleClickInterval",
+		value: function stepDoubleClickInterval() {
+			if (this.interval >= this.double_click_interval) this.resetClick();else if (this.click_flag) this.interval += 1;
+		}
+	}, {
+		key: "isDoubleClicked",
+		value: function isDoubleClicked() {
+			return this.double_click;
+		}
+	}]);
+
+	return StateManager;
+}();
+
+},{}],21:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.ComponentTemplate = exports.NodeTemplate = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _base_class = require("./base_class.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var NodeTemplate = exports.NodeTemplate = function (_Node) {
+	_inherits(NodeTemplate, _Node);
+
+	function NodeTemplate(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, NodeTemplate);
+
+		var _this = _possibleConstructorReturn(this, (NodeTemplate.__proto__ || Object.getPrototypeOf(NodeTemplate)).call(this, p, pos_x, pos_y, color, select_color, on_color));
+
+		_this.name_margin = 50; //15;
+		_this.name_margin_top = 45;
+		_this.name_margin_left = 15;
+		_this.att_stroke_size = 2;
+		_this.output_nodes = [];
+		_this.input_nodes = [];
+		_this.head_font_size = 16;
+		_this.desc_font_size = 12;
+		_this.val = 0;
+		_this.calc_queue = calc_queue;
+		_this.node_id = node_id;
+		return _this;
+	}
+
+	_createClass(NodeTemplate, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);else this.p5js.noFill();
+			this.p5js.rect(this.x, this.y, this.w * this.static_var.scale, this.h * this.static_var.scale, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(this.att_stroke_size);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(this.att_stroke_size);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w * this.static_var.scale, this.margin_h * this.static_var.scale, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.pop();
+		}
+	}, {
+		key: "addComponent",
+		value: function addComponent(comp) {
+			if (comp.getIOType() == 1) {
+				comp.setID(this.input_nodes.length);
+				this.input_nodes.push([]);
+			}
+			if (comp.getIOType() == 0) {
+				comp.setID(this.output_nodes.length);
+				this.output_nodes.push([]);
+			}
+			this.components.push(comp);
+		}
+	}, {
+		key: "updateComponentPos",
+		value: function updateComponentPos() {
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].setPos(this.x, this.y);
+			} // outer stroke
+			this.margin_x = this.x - this.margin;
+			this.margin_y = this.y - this.margin;
+			this.margin_w = this.w + this.margin * 2;
+			this.margin_h = this.h + this.margin * 2;
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			if (mx >= this.x && mx <= this.x + this.w * this.static_var.scale && my >= this.y && my <= this.y + this.h * this.static_var.scale) return true;else return false;
+		}
+	}, {
+		key: "addInputNode",
+		value: function addInputNode(node, id) {
+			this.input_nodes[id].push(node);
+		}
+	}, {
+		key: "delInputNode",
+		value: function delInputNode(node, id) {
+			for (var i = 0; i < this.input_nodes[id].length; i++) {
+				if (node === this.input_nodes[id][i]) {
+					this.input_nodes[id].splice(i, 1);
+					break;
+				}
+			}
+		}
+	}, {
+		key: "addOutputNode",
+		value: function addOutputNode(node, id) {
+			this.output_nodes[id].push(node);
+		}
+	}, {
+		key: "delOutputNode",
+		value: function delOutputNode(node, id) {
+			for (var i = 0; i < this.output_nodes[id].length; i++) {
+				if (node === this.output_nodes[id][i]) {
+					this.output_nodes[id].splice(i, 1);
+					break;
+				}
+			}
+		}
+	}, {
+		key: "hasField",
+		value: function hasField() {
+			return false;
+		}
+	}, {
+		key: "setVal",
+		value: function setVal(val) {
+			this.val = val;
+		}
+	}, {
+		key: "getVal",
+		value: function getVal() {
+			return this.val;
+		}
+	}, {
+		key: "readInput",
+		value: function readInput() {
+			;
+		}
+	}, {
+		key: "writeOutput",
+		value: function writeOutput() {
+			;
+		}
+	}, {
+		key: "setDescription",
+		value: function setDescription(desc) {
+			this.desc = desc;
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			return {};
+		}
+	}, {
+		key: "getNodeID",
+		value: function getNodeID() {
+			return this.node_id;
+		}
+	}, {
+		key: "getComponent",
+		value: function getComponent() {
+			var comp_id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+
+			if (comp_id < 0) return this.components;
+			for (var i = 0; i < this.components.length; i++) {
+				if (comp_id == this.components[i].getComponentID()) return this.components[i];
+			}
+			return null;
+		}
+	}]);
+
+	return NodeTemplate;
+}(_base_class.Node);
+
+var ComponentTemplate = exports.ComponentTemplate = function (_Component) {
+	_inherits(ComponentTemplate, _Component);
+
+	function ComponentTemplate(p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color, flag_forward) {
+		_classCallCheck(this, ComponentTemplate);
+
+		var _this2 = _possibleConstructorReturn(this, (ComponentTemplate.__proto__ || Object.getPrototypeOf(ComponentTemplate)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color));
+
+		_this2.radius = 12.5;
+		_this2.r2 = _this2.radius * _this2.radius;
+		_this2.name = name;
+		_this2.forwardable = flag_forward;
+		_this2.comp_id = null;
+		_this2.text_size = 14;
+		return _this2;
+	}
+
+	_createClass(ComponentTemplate, [{
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.select_flag) this.p5js.fill(this.select_color.r, this.select_color.g, this.select_color.b);else if (this.on_flag) this.p5js.fill(this.on_color.r, this.on_color.g, this.on_color.b);else if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			ellipse(this.x, this.y, this.radius, this.radius);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "setName",
+		value: function setName(name) {
+			this.name = name;
+		}
+	}, {
+		key: "getName",
+		value: function getName(name) {
+			return this.name;
+		}
+	}, {
+		key: "setID",
+		value: function setID(id) {
+			this.id = id;
+		}
+	}, {
+		key: "getID",
+		value: function getID(id) {
+			return this.id;
+		}
+	}, {
+		key: "isForwardable",
+		value: function isForwardable() {
+			return this.forwardable;
+		}
+	}, {
+		key: "getX_d",
+		value: function getX_d() {
+			;
+		}
+	}, {
+		key: "getY_d",
+		value: function getY_d() {
+			;
+		}
+	}, {
+		key: "hasField",
+		value: function hasField() {
+			return false;
+		}
+	}, {
+		key: "setRadius",
+		value: function setRadius(r) {
+			this.radius = r;
+			this.r2 = r * r;
+		}
+	}, {
+		key: "getRadius",
+		value: function getRadius() {
+			return this.radius;
+		}
+	}, {
+		key: "isMouseOn",
+		value: function isMouseOn(mx, my) {
+			if ((mx - this.x) * (mx - this.x) + (my - this.y) * (my - this.y) <= this.r2) return true;
+			return false;
+		}
+	}, {
+		key: "hasForwarding",
+		value: function hasForwarding() {
+			return false;
+		}
+	}, {
+		key: "getComponentID",
+		value: function getComponentID() {
+			return this.comp_id;
+		}
+	}]);
+
+	return ComponentTemplate;
+}(_base_class.Component);
+
+},{"./base_class.js":8}]},{},[7]);
