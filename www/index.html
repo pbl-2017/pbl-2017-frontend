@@ -27,7 +27,7 @@
         <ons-list-item onclick="fn.load('editor.html')" tappable>
           Programming
         </ons-list-item>
-        <ons-list-item onclick="fn.load('about.html')" tappable>
+        <ons-list-item onclick="fn.load('about.html'); window.requestFileSystem(window.TEMPORARY, 1024*1024, loadFile, errorHandler);" tappable>
           Module List
         </ons-list-item>
       </ons-list>
@@ -50,8 +50,6 @@
     </ons-toolbar>
     <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
       <input type="button" onclick="snapPicture()" value="Read QRcode">
-    <div id="qr_text"></div>
-    <div id="qr_status"></div>
     </p>
   </ons-page>
 </ons-template>
@@ -100,13 +98,24 @@
     </div>
   </ons-page>
 </ons-template>
-<script src="lib/p5.dom.js"></script>
 <script src="lib/p5.js"></script>
+<script src="lib/p5.dom.js"></script>
 <script src="lib/app.js"></script>
 <script src="lib/test.js"></script>
 <script>
     ons.ready(function() {
         console.log("Onsen UI is ready!");
+        
+        
+        /*
+        //佐藤.APIWrapper実行できるかテスト用
+        var test = function(){
+            var elem = document.getElementById("qr_text");
+            var div = document.createElement('div');
+            div.textContent = window.apiWrapper.get.devices.toList()[0].id;
+            elem.appendChild(div);
+        }
+        setInterval(test, 1000);*/
     });
 
     window.fn = {};
@@ -120,6 +129,7 @@
         content
             .load(page)
             .then(menu.close.bind(menu));
+    
     };
 
     document.addEventListener ("deviceready", onDeviceReady, false);
@@ -140,9 +150,9 @@
                 if(res instanceof Error) {
                     alert("No QR code found. Please make sure the QR code is within the camera's frame and try again.");
                 } else {
-                    document.getElementById('qr_text').innerText = res;
                     console.log(res);
-                    window.apiWrapper.sendQR(res);
+                    window.apiWrapper.set.sendQR(res);
+                    
                     fn.load('editor.html');
                 }
             };
@@ -195,7 +205,7 @@
 
         console.log('file system open: ' + fs.name);
         var fileName = document.getElementById('fileName').value;
-        fs.root.getFile(fileName+'.html', { create: true, exclusive: false }, function (fileEntry) {
+        fs.root.getFile(fileName+'.json', { create: true, exclusive: false }, function (fileEntry) {
 
             console.log("fileEntry is file? " + fileEntry.isFile.toString());
             _writeFile(fileEntry, null, "hoge");
@@ -246,10 +256,10 @@
     };
 
     function readFile(fileEntry) {
+        console.log(fileEntry.name);
 
         fileEntry.file(function (file) {
             var reader = new FileReader();
-
             reader.onloadend = function() {
                 console.log("Successful file read: " + this.result);
             };
@@ -266,7 +276,7 @@
             var project = document.createElement('input');
             project.setAttribute('type', 'button');
             project.setAttribute('value', fileEntries[i].name);
-            // project.onclick = function(this) {console.log(this.fileEntries[i].name);};
+            project.onclick = (function(fileEntry) {return readFile(fileEntry);})(fileEntries[i]);
             div.appendChild(project);
             divs.appendChild(div);
         }
