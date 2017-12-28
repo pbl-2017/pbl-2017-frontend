@@ -208,7 +208,7 @@
         fs.root.getFile(fileName+'.json', { create: true, exclusive: false }, function (fileEntry) {
 
             console.log("fileEntry is file? " + fileEntry.isFile.toString());
-            _writeFile(fileEntry, null, "hoge");
+            _writeFile(fileEntry, null, 'hoge');
         })
     };
 
@@ -262,6 +262,7 @@
             var reader = new FileReader();
             reader.onloadend = function() {
                 console.log("Successful file read: " + this.result);
+                fn.load('editor.html')
             };
 
             reader.readAsText(file);
@@ -276,7 +277,7 @@
             var project = document.createElement('input');
             project.setAttribute('type', 'button');
             project.setAttribute('value', fileEntries[i].name);
-            project.onclick = (function(fileEntry) {return readFile(fileEntry);})(fileEntries[i]);
+            project.onclick = readFile.bind(this, fileEntries[i]);
             div.appendChild(project);
             divs.appendChild(div);
         }
