@@ -24,7 +24,7 @@
         <ons-list-item onclick="fn.load('home.html')" tappable>
           Device Settings
         </ons-list-item>
-        <ons-list-item onclick="fn.load('editor.html')" tappable>
+        <ons-list-item onclick="fn.load('editor.html');" tappable>
           Programming
         </ons-list-item>
         <ons-list-item onclick="fn.load('about.html'); window.requestFileSystem(window.TEMPORARY, 1024*1024, loadFile, errorHandler);" tappable>
@@ -37,7 +37,7 @@
 </ons-splitter>
 
 <ons-template id="home.html">
-  <ons-page>
+  <ons-page id="not_canvas_page">
     <ons-toolbar>
       <div class="left">
         <ons-toolbar-button onclick="fn.open()">
@@ -55,7 +55,7 @@
 </ons-template>
 
 <ons-template id="editor.html">
-  <ons-page>
+  <ons-page id="canvas_page">
     <ons-toolbar>
       <div class="left">
         <ons-toolbar-button onclick="fn.open()">
@@ -67,17 +67,18 @@
       </div>
     </ons-toolbar>
     <div id="p5Canvas">
-        
     </div>
+    
     <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
     <textarea id="fileName"></textarea>
     <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Save">
     </p>
+
   </ons-page>
 </ons-template>
 
 <ons-template id="about.html">
-  <ons-page>
+  <ons-page id="not_canvas_page">
     <ons-toolbar>
       <div class="left">
         <ons-toolbar-button onclick="fn.open()">
@@ -101,12 +102,15 @@
 <script src="lib/p5.js"></script>
 <script src="lib/p5.dom.js"></script>
 <script src="lib/app.js"></script>
+<!--
 <script src="lib/test.js"></script>
+-->
 <script>
     ons.ready(function() {
         console.log("Onsen UI is ready!");
-        
-        
+        document.addEventListener('pageinit',function(page){
+            window.run_setup();
+        })
         /*
         //佐藤.APIWrapper実行できるかテスト用
         var test = function(){
@@ -116,6 +120,13 @@
             elem.appendChild(div);
         }
         setInterval(test, 1000);*/
+    });
+    
+    document.addEventListener('init', function(event) {
+        var _page = event.target;
+        if (_page.matches('#canvas_page')) {
+            window.run_setup()
+        }
     });
 
     window.fn = {};

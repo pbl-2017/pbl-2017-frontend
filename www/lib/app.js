@@ -12824,6 +12824,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var APIWrapper = function APIWrapper() {
+    var _this = this;
+
     _classCallCheck(this, APIWrapper);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12831,14 +12833,16 @@ var APIWrapper = function APIWrapper() {
     this.get = new APIGetter(this.deviceListBehaviour);
     this.set = new APISetterMock(this.deviceListBehaviour);
 
-    /*this.deviceListBehaviour.subscribe(list => {
-        console.dir(this.deviceListBehaviour.getValue());
-    })*/
+    this.deviceListBehaviour.subscribe(function (list) {
+        //console.dir(_this.deviceListBehaviour.getValue());
+    });
 };
 
 exports.default = APIWrapper;
 
 var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
+    var _this2 = this;
+
     _classCallCheck(this, APIWrapperImpl);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12846,12 +12850,12 @@ var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
     this.get = new APIGetter(this.deviceListBehaviour);
     this.set = new APISetterImpl(this.deviceListBehaviour, this.get.user);
 
-    /*this.deviceListBehaviour.subscribe(list => {
+    this.deviceListBehaviour.subscribe(function (list) {
         //const socket = list.filter(device => device instanceof Socket)[0];
         //socket.isON = !socket.isON;
         //this.set.updateDevice(socket);
-        console.dir(this.get.devices.toList());
-    });*/
+        //console.dir(_this2.get.devices.toList());
+    });
 };
 
 var APIGetter = function APIGetter(ls) {
@@ -12913,12 +12917,12 @@ var APISetterImpl = function (_APISetter) {
     function APISetterImpl(list, user) {
         _classCallCheck(this, APISetterImpl);
 
-        var _this = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
+        var _this3 = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
 
-        _this.updateDevice = function (device) {
+        _this3.updateDevice = function (device) {
             _Devices.DeviceFactory.push(device);
         };
-        _this.sendQR = function (qrCodeID) {
+        _this3.sendQR = function (qrCodeID) {
             var deviceFetch = function deviceFetch(deviceRESTPath, T) {
                 return function () {
                     return new Promise(function (resolve) {
@@ -12946,8 +12950,8 @@ var APISetterImpl = function (_APISetter) {
                 var qrCodeMatchDevices = fetchResult.filter(function (element, index, array) {
                     return element.id === qrCodeID;
                 });
-                console.dir(fetchResult);
-                console.dir(qrCodeMatchDevices);
+                //console.dir(fetchResult);
+                //console.dir(qrCodeMatchDevices);
                 if (qrCodeMatchDevices.length > 0) {
                     var device = qrCodeMatchDevices[0];
                     device.userId = user.id;
@@ -12955,7 +12959,7 @@ var APISetterImpl = function (_APISetter) {
                 }
             });
         };
-        return _this;
+        return _this3;
     }
 
     return APISetterImpl;
@@ -12967,9 +12971,9 @@ var APISetterMock = function (_APISetter2) {
     function APISetterMock(list) {
         _classCallCheck(this, APISetterMock);
 
-        var _this2 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
+        var _this4 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
 
-        _this2.updateDevice = function (device) {
+        _this4.updateDevice = function (device) {
             var ls = list.getValue();
             var originDevice = ls.filter(function (d) {
                 return d.id === device.id;
@@ -12989,20 +12993,20 @@ var APISetterMock = function (_APISetter2) {
          const device = DeviceFactory.create([json])[0];
         this.updateDevice(device);*/
 
-        return _this2;
+        return _this4;
     }
 
     return APISetterMock;
 }(APISetter);
 
 var Finder = function Finder(findParameter) {
-    var _this3 = this;
+    var _this5 = this;
 
     _classCallCheck(this, Finder);
 
     this.list = [];
     this.find = function (id) {
-        var ls = _this3.list.filter(function (x) {
+        var ls = _this5.list.filter(function (x) {
             return x.id === id;
         });
         if (ls.length > 0) {
@@ -13234,9 +13238,10 @@ var _APIWrapper2 = _interopRequireDefault(_APIWrapper);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var apiWrapper = new _APIWrapper.APIWrapperImpl();
-window.apiWrapper = apiWrapper;
-var app = new _p5_app.P5App(apiWrapper);
+window.run_setup = function () {
+	var apiWrapper = new _APIWrapper.APIWrapperImpl();
+	var app = new _p5_app.P5App(apiWrapper);
+};
 
 ///
 
@@ -16534,11 +16539,14 @@ var P5App = exports.P5App = function P5App(apiWrapper) {
 	var myp5 = new p5(s);
 };
 
+var disp_bottom_margin = -200;
+
 function app(apiWrapper) {
 	return function (p) {
 		p.setup = function () {
-			p.createCanvas(p.windowWidth, p.windowHeight);
-			//p.createCanvas(p.displayWidth, p.displayHeight);
+			//var canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+			var canvas = p.createCanvas(p.displayWidth, p.displayHeight + disp_bottom_margin);
+			canvas.parent("p5Canvas");
 
 			//console.log(apiWrapper.get.devices.toList());
 
@@ -16585,12 +16593,14 @@ function app(apiWrapper) {
    */
 
 			//draw_manager.pushDrawQueue(get_list(p, 400, 100, apiWrapper));
-			//draw_manager.pushDrawQueue(music_player(p, 200, 100, apiWrapper, 2));
-			//draw_manager.pushDrawQueue(socket(p, 200, 100, apiWrapper, "IoTSocket1"));
+			_misc.draw_manager.pushDrawQueue((0, _gen_node.music_player)(p, 200, 100, apiWrapper, 2));
+			_misc.draw_manager.pushDrawQueue((0, _gen_node.socket)(p, 200, 100, apiWrapper, "IoTSocket1"));
 		};
 
 		p.windowResized = function () {
-			p.resizeCanvas(p.windowWidth, p.windowHeight);
+			//p.resizeCanvas(p.windowWidth, p.windowHeight);
+			p.resizeCanvas(p.displayWidth, p.displayHeight + disp_bottom_margin);
+
 			var menu_queue = _misc.draw_manager.getMenuQueue();
 
 			for (var i = 0; i < menu_queue.length; i++) {
