@@ -69,7 +69,7 @@
     <div id="p5Canvas">
     </div>
     
-    <p style="text-align: center; opacity: 0.6; padding-top: 20px;">
+    <p style="text-align: center; opacity: 0.6; padding-top: 0px;">
     <textarea id="fileName"></textarea>
     <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, onCreateFile, errorHandler);" value="Save">
     </p>
@@ -125,6 +125,7 @@
     document.addEventListener('init', function(event) {
         var _page = event.target;
         if (_page.matches('#canvas_page')) {
+            //if(window.)
             window.run_setup()
         }
     });
@@ -163,6 +164,11 @@
                 } else {
                     console.log(res);
                     window.apiWrapper.set.sendQR(res);
+                    //test
+                    //test_device = {"id":"IoTSocket1"};
+                    //window.device_list.push(test_device);
+                    window.device_list.push(res)
+                    window.has_update = true;
                     
                     fn.load('editor.html');
                 }
@@ -219,7 +225,8 @@
         fs.root.getFile(fileName+'.json', { create: true, exclusive: false }, function (fileEntry) {
 
             console.log("fileEntry is file? " + fileEntry.isFile.toString());
-            _writeFile(fileEntry, null, 'hoge');
+            restore_data = window.read_data()
+            _writeFile(fileEntry, null, restore_data);
         })
     };
 
@@ -273,6 +280,8 @@
             var reader = new FileReader();
             reader.onloadend = function() {
                 console.log("Successful file read: " + this.result);
+                window.restore_json = this.result;
+                window.restore = true;
                 fn.load('editor.html')
             };
 

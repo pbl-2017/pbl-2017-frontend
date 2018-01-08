@@ -13238,11 +13238,31 @@ var _APIWrapper2 = _interopRequireDefault(_APIWrapper);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var apiWrapper = new _APIWrapper.APIWrapperImpl();
+window.apiWrapper = apiWrapper;
+window.canvas_loaded = false;
+window.has_update = false;
+// using for save the read device list.
+window.device_list = [];
+window.restore = false;
+window.restore_json = null;
+
 window.run_setup = function () {
-	var apiWrapper = new _APIWrapper.APIWrapperImpl();
-	var app = new _p5_app.P5App(apiWrapper);
+	//if(window.canvas_loaded == true && window.app != null){
+	if (window.app != null) {
+		window.reset_p5();
+	}
+
+	window.app = new _p5_app.P5App(apiWrapper);
+	window.canvas_loaded = true;
 };
 
+window.reset_p5 = function () {
+	window.app = null;
+	window.canvas_loaded = false;
+};
+
+//window.run_setup();
 ///
 
 },{"./APIWrapper/APIWrapper.js":4,"./p5_app.js":18}],8:[function(require,module,exports){
@@ -15351,11 +15371,12 @@ var IOButtonNode = exports.IOButtonNode = function (_NodeTemplate6) {
 
 		_this8.name = "Button";
 		_this8.desc = "";
-		_this8.comp_margin_y = -5;
+		_this8.comp_margin_y = 0;
 		_this8.comp_margin_x = _this8.w / (1.0 + 1);
 
 		var comp_id = 0;
 		//this.addComponent(io_output_component(this.p5js, this, this.w, 20, 0, true, "I/O", comp_id++));
+		//this.addComponent(option_output_compo(this.p5js, this, (this.components.length+1)*this.comp_margin_x, this.h+this.comp_margin_y, 0, true, "Option", comp_id++));
 		_this8.addComponent((0, _gen_component.io_output_component)(_this8.p5js, _this8, (_this8.components.length + 1) * _this8.comp_margin_x, _this8.h + _this8.comp_margin_y, 0, true, "I/O", comp_id++));
 		_this8.addComponent((0, _gen_component.button_component)(_this8.p5js, _this8, 10, 10, 0, false, "switch", comp_id++));
 		return _this8;
@@ -15528,7 +15549,7 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 
 		_this10.name = "Accele.";
 		_this10.desc = "";
-		_this10.comp_margin_y = -5;
+		_this10.comp_margin_y = 0;
 		_this10.comp_margin_x = _this10.w / (1.0 + 1);
 
 		var comp_id = 0;
@@ -15558,6 +15579,7 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
   		});
   })()
   */
+		_this10.setup_listener();
 		return _this10;
 	}
 
@@ -15587,6 +15609,8 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 
 				if (x * x + y * y + z * z > 10) {
 					this.run();
+				} else {
+					console.log("not enough");
 				}
 			});
 		}
@@ -16253,25 +16277,42 @@ var NodeManager = exports.NodeManager = function () {
 		key: "readUpdate",
 		value: function readUpdate(device_list) {
 			// not thinking that devices will decrease;
-			if (device_list == null) return;
+			/*
+   if(device_list==null) return;
+   	var update_list = [];
+   var new_list=[];
+          for(var i=0; i < device_list.length; i++){
+         	for(var j=0; j < this.iot_list.length; j++){
+         		if(this.iot_list[j].id == device_list[i].id){
+         			new_list.push(device_list[i]);
+         			break;
+         		}
+         	}
+         	update_list.push(device_list[i]);
+         	new_list.push(device_list[i]);
+          }
+         //console.log(update_list);
+         //console.log(new_list);
+         this.addIoTNode(update_list);
+         this.iot_list = new_list;
+         */
 
+			// adding node from QR code, I'll just need the devices list.
+			this.device_list = device_list;
+		}
+	}, {
+		key: "checkUpdate",
+		value: function checkUpdate() {
 			var update_list = [];
-			var new_list = [];
-
-			for (var i = 0; i < device_list.length; i++) {
-				for (var j = 0; j < this.iot_list.length; j++) {
-					if (this.iot_list[j].id == device_list[i].id) {
-						new_list.push(device_list[i]);
+			for (var i = 0; i < window.device_list.length; i++) {
+				for (var j = 0; j < this.device_list.length; j++) {
+					if (this.device_list[j].id == window.device_list[i].id) {
+						update_list.push(this.device_list[j]);
 						break;
 					}
 				}
-				update_list.push(device_list[i]);
-				new_list.push(device_list[i]);
 			}
-			print(update_list);
-			print(new_list);
 			this.addIoTNode(update_list);
-			this.iot_list = new_list;
 		}
 	}, {
 		key: "addIoTNode",
@@ -16320,6 +16361,13 @@ var NodeManager = exports.NodeManager = function () {
 					store_node.push(tmp);
 				} else if (json_object["node"][i]["node_name"] == "OptionButtonNode") {
 					tmp = new _base_node.OptionButtonNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+
+					this.draw_manager.restoreNode(tmp);
+					out_list.push({ "output_node_id": json_object["node"][i]["node_id"], "output_target_id": json_object["node"][i]["output_node"], "type": 1 });
+					store_node.push(tmp);
+				} else if (json_object["node"][i]["node_name"] == "AccelerationNode") {
+					tmp = new _base_node.AccelerationNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
 					tmp.setInstance(tmp);
 
 					this.draw_manager.restoreNode(tmp);
@@ -16539,7 +16587,7 @@ var P5App = exports.P5App = function P5App(apiWrapper) {
 	var myp5 = new p5(s);
 };
 
-var disp_bottom_margin = -200;
+var disp_bottom_margin = -160;
 
 function app(apiWrapper) {
 	return function (p) {
@@ -16548,7 +16596,7 @@ function app(apiWrapper) {
 			var canvas = p.createCanvas(p.displayWidth, p.displayHeight + disp_bottom_margin);
 			canvas.parent("p5Canvas");
 
-			//console.log(apiWrapper.get.devices.toList());
+			console.log(apiWrapper.get.devices.toList());
 
 			_misc.draw_manager.setDrawingContext(p);
 			_misc.draw_manager.setStateManager(_misc.state_manager);
@@ -16556,6 +16604,9 @@ function app(apiWrapper) {
 			_misc.node_manager.setDrawContext(p);
 			_misc.node_manager.setApiWrapper(apiWrapper);
 			_misc.node_manager.setDrawManager(_misc.draw_manager);
+
+			// read all device that are in the data base.
+			_misc.node_manager.startWatching();
 
 			// for value nput 
 			var input_field = p.createInput();
@@ -16579,9 +16630,15 @@ function app(apiWrapper) {
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, -70, _gen_node.acce_node, "加速度", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "option", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, -70, _gen_node.io_button, "スイッチ", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, null, "save", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, null, "", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, 70, null, "do nothing", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, 70, null, "do nothing", null));
+
+			// if camvas was made in restore mode.
+			if (window.restore) {
+				(0, _restore.restore_call)(window.restore_json);
+				window.restore = false;
+			}
 
 			// setting up the drawing object.
 			/*
@@ -16593,8 +16650,15 @@ function app(apiWrapper) {
    */
 
 			//draw_manager.pushDrawQueue(get_list(p, 400, 100, apiWrapper));
-			_misc.draw_manager.pushDrawQueue((0, _gen_node.music_player)(p, 200, 100, apiWrapper, 2));
-			_misc.draw_manager.pushDrawQueue((0, _gen_node.socket)(p, 200, 100, apiWrapper, "IoTSocket1"));
+			//draw_manager.pushDrawQueue(music_player(p, 200, 100, apiWrapper, 2));
+			//draw_manager.pushDrawQueue(socket(p, 200, 100, apiWrapper, "IoTSocket1"));
+		};
+
+		var update_state = function update_state() {
+			if (window.has_update) {
+				_misc.node_manager.checkUpdate();
+				window.has_update = false;
+			}
 		};
 
 		p.windowResized = function () {
@@ -16630,6 +16694,7 @@ function app(apiWrapper) {
 			}
 
 			_misc.draw_manager.draw();
+			update_state();
 		};
 
 		/*
@@ -16871,6 +16936,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.save_node = save_node;
 exports.restore_node = restore_node;
+exports.restore_call = restore_call;
 
 var _misc = require("./misc.js");
 
@@ -16890,11 +16956,13 @@ function save_node() {
 	for (var i = 0; i < edge_list.length; i++) {
 		edges.push(edge_list[i].getInfo());
 	}
-	var output_text = window.JSON.stringify({ "node": nodes, "edge": edges });
-	console.log(output_text);
+	var restore_data = window.JSON.stringify({ "node": nodes, "edge": edges });
+	console.log(restore_data);
+	return restore_data;
 	//file.Write(output_text)
 	//file.Close();
 }
+window.read_data = save_node;
 
 function restore_node(p) {
 	//var data = new XMLHttpRequest();	
@@ -16902,7 +16970,7 @@ function restore_node(p) {
 	//data.send(null);
 
 	// test file, it should be placed in the directory of index.html
-	var result = p.loadStrings('./restore.txt', print);
+	var result = p.loadStrings('./restore.txt', restore_call);
 	//var LF = String.fromCharCode(10); //改行ｺｰﾄﾞ
 	/*var lines = data.responseText.split(LF);
  for (var i = 0; i < lines.length;++i) {
@@ -16918,11 +16986,14 @@ function restore_node(p) {
  */
 }
 
-function print(result) {
+function restore_call(result) {
 	console.log(result);
 	var data = window.JSON.parse(result);
 	_misc.node_manager.restoreNode(data);
 }
+
+// canvas not ready at calling time, so no needed.
+//window.restore_node = restore_call;
 
 },{"./misc.js":16}],20:[function(require,module,exports){
 "use strict";
@@ -17353,7 +17424,7 @@ var ComponentTemplate = exports.ComponentTemplate = function (_Component) {
 
 		var _this2 = _possibleConstructorReturn(this, (ComponentTemplate.__proto__ || Object.getPrototypeOf(ComponentTemplate)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color));
 
-		_this2.radius = 12.5;
+		_this2.radius = 15.0;
 		_this2.r2 = _this2.radius * _this2.radius;
 		_this2.name = name;
 		_this2.forwardable = flag_forward;
