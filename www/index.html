@@ -125,7 +125,6 @@
     document.addEventListener('init', function(event) {
         var _page = event.target;
         if (_page.matches('#canvas_page')) {
-            //if(window.)
             window.run_setup()
         }
     });
@@ -167,8 +166,8 @@
                     //test
                     //test_device = {"id":"IoTSocket1"};
                     //window.device_list.push(test_device);
-                    window.device_list.push(res)
-                    window.has_update = true;
+                    //window.device_list.push(res)
+                    //window.has_update = true;
                     
                     fn.load('editor.html');
                 }
@@ -267,6 +266,9 @@
             // create a new Blob instead.
             if (!dataObj) {
                 dataObj = new Blob([message], { type: 'text/plain' });
+                if((window.app != null || window.app != undefined)){
+                    window.clear();
+                }
             }
 
             fileWriter.write(dataObj);
@@ -280,7 +282,12 @@
             var reader = new FileReader();
             reader.onloadend = function() {
                 console.log("Successful file read: " + this.result);
+                if((window.app != null || window.app != undefined)){
+                    window.clear();
+                }
+                // to pass the json to the p5 instance
                 window.restore_json = this.result;
+                // restore flag
                 window.restore = true;
                 fn.load('editor.html')
             };

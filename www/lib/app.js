@@ -12824,8 +12824,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var APIWrapper = function APIWrapper() {
-    var _this = this;
-
     _classCallCheck(this, APIWrapper);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12834,15 +12832,13 @@ var APIWrapper = function APIWrapper() {
     this.set = new APISetterMock(this.deviceListBehaviour);
 
     this.deviceListBehaviour.subscribe(function (list) {
-        //console.dir(_this.deviceListBehaviour.getValue());
+        //console.dir(this.deviceListBehaviour.getValue());
     });
 };
 
 exports.default = APIWrapper;
 
 var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
-    var _this2 = this;
-
     _classCallCheck(this, APIWrapperImpl);
 
     this.deviceListBehaviour = new Rx.BehaviorSubject([]);
@@ -12854,7 +12850,7 @@ var APIWrapperImpl = exports.APIWrapperImpl = function APIWrapperImpl() {
         //const socket = list.filter(device => device instanceof Socket)[0];
         //socket.isON = !socket.isON;
         //this.set.updateDevice(socket);
-        //console.dir(_this2.get.devices.toList());
+        //console.dir(this.get.devices.toList());
     });
 };
 
@@ -12875,6 +12871,8 @@ var User = function User() {
 };
 
 var DeviceGetter = function DeviceGetter(ls, user) {
+    var _this = this;
+
     _classCallCheck(this, DeviceGetter);
 
     //現状のデバイスのリストを取得
@@ -12898,7 +12896,7 @@ var DeviceGetter = function DeviceGetter(ls, user) {
     //リストの更新時に引数にデバイスリストを持つ関数を呼び出すようにする
     this.setEvent = function (func) {
         ls.subscribe(function (x) {
-            func(x);
+            func(_this.toList());
         });
     };
 };
@@ -12917,12 +12915,12 @@ var APISetterImpl = function (_APISetter) {
     function APISetterImpl(list, user) {
         _classCallCheck(this, APISetterImpl);
 
-        var _this3 = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
+        var _this2 = _possibleConstructorReturn(this, (APISetterImpl.__proto__ || Object.getPrototypeOf(APISetterImpl)).call(this, list, user));
 
-        _this3.updateDevice = function (device) {
+        _this2.updateDevice = function (device) {
             _Devices.DeviceFactory.push(device);
         };
-        _this3.sendQR = function (qrCodeID) {
+        _this2.sendQR = function (qrCodeID) {
             var deviceFetch = function deviceFetch(deviceRESTPath, T) {
                 return function () {
                     return new Promise(function (resolve) {
@@ -12950,8 +12948,8 @@ var APISetterImpl = function (_APISetter) {
                 var qrCodeMatchDevices = fetchResult.filter(function (element, index, array) {
                     return element.id === qrCodeID;
                 });
-                //console.dir(fetchResult);
-                //console.dir(qrCodeMatchDevices);
+                //console.dir(fetchResult)
+                //console.dir(qrCodeMatchDevices)
                 if (qrCodeMatchDevices.length > 0) {
                     var device = qrCodeMatchDevices[0];
                     device.userId = user.id;
@@ -12959,7 +12957,7 @@ var APISetterImpl = function (_APISetter) {
                 }
             });
         };
-        return _this3;
+        return _this2;
     }
 
     return APISetterImpl;
@@ -12971,9 +12969,9 @@ var APISetterMock = function (_APISetter2) {
     function APISetterMock(list) {
         _classCallCheck(this, APISetterMock);
 
-        var _this4 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
+        var _this3 = _possibleConstructorReturn(this, (APISetterMock.__proto__ || Object.getPrototypeOf(APISetterMock)).call(this, list));
 
-        _this4.updateDevice = function (device) {
+        _this3.updateDevice = function (device) {
             var ls = list.getValue();
             var originDevice = ls.filter(function (d) {
                 return d.id === device.id;
@@ -12993,20 +12991,20 @@ var APISetterMock = function (_APISetter2) {
          const device = DeviceFactory.create([json])[0];
         this.updateDevice(device);*/
 
-        return _this4;
+        return _this3;
     }
 
     return APISetterMock;
 }(APISetter);
 
 var Finder = function Finder(findParameter) {
-    var _this5 = this;
+    var _this4 = this;
 
     _classCallCheck(this, Finder);
 
     this.list = [];
     this.find = function (id) {
-        var ls = _this5.list.filter(function (x) {
+        var ls = _this4.list.filter(function (x) {
             return x.id === id;
         });
         if (ls.length > 0) {
@@ -13249,17 +13247,27 @@ window.restore_json = null;
 
 window.run_setup = function () {
 	//if(window.canvas_loaded == true && window.app != null){
-	if (window.app != null) {
-		window.reset_p5();
+	if (window.app != null || window.app != undefined) {
+		//&& window.canvas_loaded){
+		window.canvas.parent("p5Canvas");
+		//window.reset_p5();
+		return;
 	}
 
 	window.app = new _p5_app.P5App(apiWrapper);
 	window.canvas_loaded = true;
+	window.canvas.parent("p5Canvas");
 };
 
-window.reset_p5 = function () {
+window.clear = function () {
+	window.reset_manager();
 	window.app = null;
 	window.canvas_loaded = false;
+	window.has_update = false;
+	// using for save the read device list.
+	window.device_list = [];
+	window.restore = false;
+	window.restore_json = null;
 };
 
 //window.run_setup();
@@ -15184,6 +15192,7 @@ var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
 				this.device = filterLs[0];
 				this.power_state = this.device.isPlay ? "On" : "Off";
 				this.music_num = this.device.musicNumber;
+				console.log("received");
 			}
 		}
 	}, {
@@ -15203,8 +15212,9 @@ var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
 		value: function runOption() {
 			this.run_option = false;
 			if (this.device != null) {
-				this.device.musicNumber = Math.floor(Math.random() * (this.random_max + 1 - this.random_min)) + this.random_min;
-				this.music_num = this.device.musicNumber;
+				//this.device.musicNumber = Math.floor( Math.random() * (this.random_max + 1 - this.random_min) ) + this.random_min;
+				//this.music_num = this.device.musicNumber;
+				this.device.musicNumber += 1;
 				console.log(this.device.musicNumber);
 				this.api_wrapper.set.updateDevice(this.device);
 			}
@@ -15553,8 +15563,8 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 		_this10.comp_margin_x = _this10.w / (1.0 + 1);
 
 		var comp_id = 0;
-		_this10.run = _this10.run.bind(_this10);
-		_this10.setup_listener = _this10.setup_listener.bind(_this10);
+		//this.run = this.run.bind(this);
+		//this.setup_listener = this.setup_listener.bind(this);
 		//this.addComponent(io_output_component(this.p5js, this, this.w, 20, 0, true, "I/O", comp_id++));
 		_this10.addComponent((0, _gen_component.io_output_component)(_this10.p5js, _this10, (_this10.components.length + 1) * _this10.comp_margin_x, _this10.h + _this10.comp_margin_y, 0, true, "I/O", comp_id++));
 		/*
@@ -15579,6 +15589,10 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
   		});
   })()
   */
+		_this10.frame_count = 0;
+		_this10.frame_th = 100;
+		_this10.runnable = true;
+		_this10.setup_listener = _this10.setup_listener.bind(_this10);
 		_this10.setup_listener();
 		return _this10;
 	}
@@ -15607,11 +15621,21 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 					return Number(obj).toFixed(fix_deg);
 				}
 
-				if (x * x + y * y + z * z > 10) {
-					this.run();
+				if (this.runnable) {
+					if (x * x + y * y + z * z > 1) {
+						this.run();
+						this.runnable = false;
+						console.log("runnnnnnnnnn!!");
+					}
 				} else {
-					console.log("not enough");
+					if (this.frame_count > this.frame_th) {
+						this.runnable = true;
+						this.frame_count = 0;
+					} else {
+						this.frame_count += 1;
+					}
 				}
+				//console.log("listening...");
 			});
 		}
 	}, {
@@ -15890,6 +15914,12 @@ var DrawManager = exports.DrawManager = function () {
 		key: "delEdgeQueue",
 		value: function delEdgeQueue(index) {
 			if (!isNaN(index)) this.edge_queue.splice(index, 1);
+		}
+	}, {
+		key: "clear",
+		value: function clear() {
+			this.draw_queue = [];
+			this.edge_queue = [];
 		}
 	}]);
 
@@ -16249,6 +16279,7 @@ var NodeManager = exports.NodeManager = function () {
 		this.init_gen_node_x = 100;
 		this.init_gen_node_y = 300;
 		this.iot_list = [];
+		this.device_list = [];
 
 		this.readUpdate = this.readUpdate.bind(this);
 	}
@@ -16274,14 +16305,22 @@ var NodeManager = exports.NodeManager = function () {
 			this.api_wrapper.get.devices.setEvent(this.readUpdate);
 		}
 	}, {
+		key: "clear",
+		value: function clear() {
+			this.iot_list = [];
+			this.device_list = [];
+		}
+	}, {
 		key: "readUpdate",
 		value: function readUpdate(device_list) {
 			// not thinking that devices will decrease;
+			if (device_list == null) return;
+
+			var update_list = [];
+			var new_list = [];
+
 			/*
-   if(device_list==null) return;
-   	var update_list = [];
-   var new_list=[];
-          for(var i=0; i < device_list.length; i++){
+         for(var i=0; i < device_list.length; i++){
          	for(var j=0; j < this.iot_list.length; j++){
          		if(this.iot_list[j].id == device_list[i].id){
          			new_list.push(device_list[i]);
@@ -16290,12 +16329,19 @@ var NodeManager = exports.NodeManager = function () {
          	}
          	update_list.push(device_list[i]);
          	new_list.push(device_list[i]);
-          }
-         //console.log(update_list);
-         //console.log(new_list);
-         this.addIoTNode(update_list);
-         this.iot_list = new_list;
-         */
+          }*/
+			for (var i = 0; i < device_list.length; i++) {
+				for (var j = 0; j < this.device_list.length; j++) {
+					if (this.device_list[j].id == device_list[i].id) {
+						break;
+					}
+				}
+				if (j == this.device_list.length) update_list.push(device_list[i]);
+			}
+			//console.log(update_list);
+			//console.log(new_list);
+			this.addIoTNode(update_list);
+			//this.iot_list = new_list;
 
 			// adding node from QR code, I'll just need the devices list.
 			this.device_list = device_list;
@@ -16336,6 +16382,7 @@ var NodeManager = exports.NodeManager = function () {
 			var tmp = null;
 			var store_node = [];
 			var out_list = [];
+			this.draw_manager.clear();
 			//console.log(json_object["node"]);
 			for (var i = 0; i < json_object["node"].length; i++) {
 				//console.log(json_object["node"][i]);
@@ -16595,6 +16642,7 @@ function app(apiWrapper) {
 			//var canvas = p.createCanvas(p.windowWidth, p.windowHeight);
 			var canvas = p.createCanvas(p.displayWidth, p.displayHeight + disp_bottom_margin);
 			canvas.parent("p5Canvas");
+			window.canvas = canvas;
 
 			console.log(apiWrapper.get.devices.toList());
 
@@ -16606,7 +16654,7 @@ function app(apiWrapper) {
 			_misc.node_manager.setDrawManager(_misc.draw_manager);
 
 			// read all device that are in the data base.
-			_misc.node_manager.startWatching();
+			if (window.restore == false) _misc.node_manager.startWatching();
 
 			// for value nput 
 			var input_field = p.createInput();
@@ -16628,11 +16676,11 @@ function app(apiWrapper) {
 			select_condition.hide();
 
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, -70, _gen_node.acce_node, "加速度", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "option", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, -70, _gen_node.io_button, "スイッチ", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "option\nスイッチ", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, -70, _gen_node.io_button, "I/O\nスイッチ", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, null, "", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, 70, null, "do nothing", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, 70, null, "do nothing", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, 70, null, "", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, 70, null, "", null));
 
 			// if camvas was made in restore mode.
 			if (window.restore) {
@@ -16652,6 +16700,15 @@ function app(apiWrapper) {
 			//draw_manager.pushDrawQueue(get_list(p, 400, 100, apiWrapper));
 			//draw_manager.pushDrawQueue(music_player(p, 200, 100, apiWrapper, 2));
 			//draw_manager.pushDrawQueue(socket(p, 200, 100, apiWrapper, "IoTSocket1"));
+		};
+
+		window.reset_manager = function () {
+			_misc.draw_manager.clear();
+			_misc.node_manager.clear();
+			_misc.state_manager.setMouseOnNode(null);
+			_misc.state_manager.setDragged(false);
+			_misc.state_manager.setSelected(null);
+			_misc.state_manager.setClearFlag(true);
 		};
 
 		var update_state = function update_state() {
@@ -17424,7 +17481,7 @@ var ComponentTemplate = exports.ComponentTemplate = function (_Component) {
 
 		var _this2 = _possibleConstructorReturn(this, (ComponentTemplate.__proto__ || Object.getPrototypeOf(ComponentTemplate)).call(this, p, parent, relative_pos_x, relative_pos_y, color, select_color, on_color));
 
-		_this2.radius = 15.0;
+		_this2.radius = 20.0;
 		_this2.r2 = _this2.radius * _this2.radius;
 		_this2.name = name;
 		_this2.forwardable = flag_forward;
