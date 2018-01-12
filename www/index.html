@@ -94,7 +94,7 @@
             <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, loadFile, errorHandler);" value="Reload";>
         </div>
         <div>
-            <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, fn.load('editor.html'), errorHandler);" value="New";>
+            <input type="button" onclick="window.requestFileSystem(window.TEMPORARY, 1024*1024, window.clear(), fn.load('editor.html'), errorHandler);" value="New";>
         </div>
     </div>
   </ons-page>
@@ -266,9 +266,6 @@
             // create a new Blob instead.
             if (!dataObj) {
                 dataObj = new Blob([message], { type: 'text/plain' });
-                if((window.app != null || window.app != undefined)){
-                    window.clear();
-                }
             }
 
             fileWriter.write(dataObj);
@@ -291,7 +288,6 @@
                 window.restore = true;
                 fn.load('editor.html')
             };
-
             reader.readAsText(file);
 
         }, fail);
