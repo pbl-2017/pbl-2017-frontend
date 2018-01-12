@@ -13241,7 +13241,7 @@ window.apiWrapper = apiWrapper;
 window.canvas_loaded = false;
 window.has_update = false;
 // using for save the read device list.
-window.device_list = [];
+//window.device_list = []
 window.restore = false;
 window.restore_json = null;
 
@@ -13261,11 +13261,13 @@ window.run_setup = function () {
 
 window.clear = function () {
 	window.reset_manager();
+	//window.canvas.parent(null);
+	//window.canvas.remove()
 	window.app = null;
 	window.canvas_loaded = false;
 	window.has_update = false;
 	// using for save the read device list.
-	window.device_list = [];
+	// window.device_list = []
 	window.restore = false;
 	window.restore_json = null;
 };
@@ -14029,7 +14031,7 @@ var Button = exports.Button = function (_ComponentTemplate3) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.AccelerationNode = exports.OptionButtonNode = exports.IOButtonNode = exports.SocketNode = exports.MusicPlayerNode = exports.GetList = exports.command_MenuNode = exports.MenuNode = undefined;
+exports.OptionAccelerationNode = exports.IOAccelerationNode = exports.OptionButtonNode = exports.IOButtonNode = exports.SocketNode = exports.MusicPlayerNode = exports.GetList = exports.command_MenuNode = exports.MenuNode = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -15128,12 +15130,12 @@ var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
 		_this4.buff = "";
 
 		_this4.readUpdate = _this4.readUpdate.bind(_this4);
-		_this4.device = _this4.api_wrapper.get.devices.find(_this4.device_id);
 		_this4.api_wrapper.get.devices.setEvent(_this4.readUpdate);
+		_this4.device = _this4.api_wrapper.get.devices.find(_this4.device_id);
 
 		if (_this4.device != null) {
 			_this4.power_state = _this4.device.isON ? "On" : "Off";
-			//this.music_num = this.device.musicNumber;
+			_this4.music_num = _this4.device.musicNumber;
 		} else {
 			_this4.power_state = "Unknown";
 			_this4.music_num = "Unknown";
@@ -15185,6 +15187,7 @@ var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
 		value: function readUpdate(device_list) {
 			var _this5 = this;
 
+			console.log("updata received");
 			var filterLs = device_list.filter(function (element, index, array) {
 				return element.id === _this5.device_id;
 			});
@@ -15213,9 +15216,9 @@ var MusicPlayerNode = exports.MusicPlayerNode = function (_NodeTemplate4) {
 			this.run_option = false;
 			if (this.device != null) {
 				//this.device.musicNumber = Math.floor( Math.random() * (this.random_max + 1 - this.random_min) ) + this.random_min;
-				//this.music_num = this.device.musicNumber;
 				this.device.musicNumber += 1;
-				console.log(this.device.musicNumber);
+				this.music_num = this.device.musicNumber;
+				//console.log(this.device.musicNumber);
 				this.api_wrapper.set.updateDevice(this.device);
 			}
 		}
@@ -15293,6 +15296,7 @@ var SocketNode = exports.SocketNode = function (_NodeTemplate5) {
 			if (filterLs.length > 0) {
 				this.device = filterLs[0];
 				this.power_state = this.device.isON ? "On" : "Off";
+				print(this);
 			}
 		}
 	}, {
@@ -15383,6 +15387,7 @@ var IOButtonNode = exports.IOButtonNode = function (_NodeTemplate6) {
 		_this8.desc = "";
 		_this8.comp_margin_y = 0;
 		_this8.comp_margin_x = _this8.w / (1.0 + 1);
+		_this8.h = 120;
 
 		var comp_id = 0;
 		//this.addComponent(io_output_component(this.p5js, this, this.w, 20, 0, true, "I/O", comp_id++));
@@ -15472,6 +15477,7 @@ var OptionButtonNode = exports.OptionButtonNode = function (_NodeTemplate7) {
 		_this9.desc = "";
 		_this9.comp_margin_y = 0;
 		_this9.comp_margin_x = _this9.w / (1.0 + 1);
+		_this9.h = 120;
 
 		var comp_id = 0;
 		//this.addComponent(option_output_component(this.p5js, this, this.w, 20, 0, true, "Option", comp_id++));
@@ -15547,15 +15553,15 @@ var OptionButtonNode = exports.OptionButtonNode = function (_NodeTemplate7) {
 	return OptionButtonNode;
 }(_templates.NodeTemplate);
 
-var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
-	_inherits(AccelerationNode, _NodeTemplate8);
+var IOAccelerationNode = exports.IOAccelerationNode = function (_NodeTemplate8) {
+	_inherits(IOAccelerationNode, _NodeTemplate8);
 
-	function AccelerationNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+	function IOAccelerationNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
 		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
 
-		_classCallCheck(this, AccelerationNode);
+		_classCallCheck(this, IOAccelerationNode);
 
-		var _this10 = _possibleConstructorReturn(this, (AccelerationNode.__proto__ || Object.getPrototypeOf(AccelerationNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+		var _this10 = _possibleConstructorReturn(this, (IOAccelerationNode.__proto__ || Object.getPrototypeOf(IOAccelerationNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
 
 		_this10.name = "Accele.";
 		_this10.desc = "";
@@ -15593,50 +15599,187 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 		_this10.frame_th = 100;
 		_this10.runnable = true;
 		_this10.setup_listener = _this10.setup_listener.bind(_this10);
-		_this10.setup_listener();
+		//this.setup_listener();
+		window.addEventListener("devicemotion", _this10.setup_listener);
 		return _this10;
 	}
 
-	_createClass(AccelerationNode, [{
+	_createClass(IOAccelerationNode, [{
 		key: "setup_listener",
-		value: function setup_listener() {
-			window.addEventListener("devicemotion", function (e) {
-				//加速度
-				var acc = e.acceleration;
-				var x = obj2NumberFix(acc.x, 5);
-				var y = obj2NumberFix(acc.y, 5);
-				var z = obj2NumberFix(acc.z, 5);
-				//傾き(重力加速度)
-				var acc_g = e.accelerationIncludingGravity;
-				var gx = obj2NumberFix(acc_g.x, 5);
-				var gy = obj2NumberFix(acc_g.y, 5);
-				var gz = obj2NumberFix(acc_g.z, 5);
-				//回転値
-				var rota_r = e.rotationRate;
-				var a = obj2NumberFix(rota_r.alpha, 5); //z方向
-				var b = obj2NumberFix(rota_r.beta, 5); //x方向
-				var g = obj2NumberFix(rota_r.gamma, 5); // y方向
+		value: function setup_listener(e) {
+			//window.addEventListener("devicemotion", function(e){
+			//加速度
+			var acc = e.acceleration;
+			var x = obj2NumberFix(acc.x, 5);
+			var y = obj2NumberFix(acc.y, 5);
+			var z = obj2NumberFix(acc.z, 5);
+			//傾き(重力加速度)
+			var acc_g = e.accelerationIncludingGravity;
+			var gx = obj2NumberFix(acc_g.x, 5);
+			var gy = obj2NumberFix(acc_g.y, 5);
+			var gz = obj2NumberFix(acc_g.z, 5);
+			//回転値
+			var rota_r = e.rotationRate;
+			var a = obj2NumberFix(rota_r.alpha, 5); //z方向
+			var b = obj2NumberFix(rota_r.beta, 5); //x方向
+			var g = obj2NumberFix(rota_r.gamma, 5); // y方向
 
-				function obj2NumberFix(obj, fix_deg) {
-					return Number(obj).toFixed(fix_deg);
+			function obj2NumberFix(obj, fix_deg) {
+				return Number(obj).toFixed(fix_deg);
+			}
+
+			if (this.runnable) {
+				if (x * x + y * y + z * z > 1) {
+					console.log("runnnnnnnnnn!!");
+					this.run();
+					this.runnable = false;
 				}
-
-				if (this.runnable) {
-					if (x * x + y * y + z * z > 1) {
-						this.run();
-						this.runnable = false;
-						console.log("runnnnnnnnnn!!");
-					}
+			} else {
+				if (this.frame_count > this.frame_th) {
+					this.runnable = true;
+					this.frame_count = 0;
 				} else {
-					if (this.frame_count > this.frame_th) {
-						this.runnable = true;
-						this.frame_count = 0;
-					} else {
-						this.frame_count += 1;
+					this.frame_count += 1;
+				}
+			}
+			//console.log("listening...");
+		} //);
+		//}
+
+	}, {
+		key: "draw",
+		value: function draw() {
+			this.p5js.push();
+
+			if (this.fill_flag) this.p5js.fill(this.color.r, this.color.g, this.color.b);
+			this.p5js.rect(this.x, this.y, this.w, this.h, this.radius);
+
+			this.p5js.noFill();
+			if (this.select_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.select_color.r, this.select_color.g, this.select_color.b);
+			} else if (this.on_flag) {
+				this.p5js.strokeWeight(2);
+				this.p5js.stroke(this.on_color.r, this.on_color.g, this.on_color.b);
+			} else {
+				this.p5js.strokeWeight(1);
+				this.p5js.stroke(this.color.r, this.color.g, this.color.b, 200);
+			}
+			// outer bound
+			this.p5js.rect(this.margin_x, this.margin_y, this.margin_w, this.margin_h, this.radius);
+
+			this.p5js.pop();
+			this.p5js.push();
+
+			for (var i = 0, len = this.components.length; i < len; i++) {
+				this.components[i].draw();
+			}this.p5js.textSize(this.head_font_size);
+			this.p5js.fill(0, 0, 0);
+			//this.p5js.text(this.name, this.x+this.name_margin, this.y+this.name_margin);
+			this.p5js.text(this.name, this.x + this.name_margin_left, this.y + this.name_margin_top);
+
+			this.p5js.pop();
+		}
+	}, {
+		key: "run",
+		value: function run() {
+			if (this.output_nodes != []) {
+				for (var id = 0; id < this.output_nodes.length; id++) {
+					for (var i = 0; i < this.output_nodes[id].length; i++) {
+						// i should add in forwarding queue.
+						this.calc_queue.addQueue(this.output_nodes[id][i]);
 					}
 				}
-				//console.log("listening...");
-			});
+			}
+		}
+	}, {
+		key: "getInfo",
+		value: function getInfo() {
+			var input = [];
+			var output = [];
+
+			for (var i = 0; i < this.input_nodes.length; i++) {
+				for (var j = 0; j < this.input_nodes[i].length; j++) {
+					input.push(this.input_nodes[i][j].getNodeID());
+				}
+			}
+
+			for (var i = 0; i < this.output_nodes.length; i++) {
+				for (var j = 0; j < this.output_nodes[i].length; j++) {
+					output.push(this.output_nodes[i][j].getNodeID());
+				}
+			}
+
+			return { "node_name": "IOAccelerationNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+		}
+	}]);
+
+	return IOAccelerationNode;
+}(_templates.NodeTemplate);
+
+var OptionAccelerationNode = exports.OptionAccelerationNode = function (_NodeTemplate9) {
+	_inherits(OptionAccelerationNode, _NodeTemplate9);
+
+	function OptionAccelerationNode(p, pos_x, pos_y, color, select_color, on_color, calc_queue) {
+		var node_id = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
+
+		_classCallCheck(this, OptionAccelerationNode);
+
+		var _this11 = _possibleConstructorReturn(this, (OptionAccelerationNode.__proto__ || Object.getPrototypeOf(OptionAccelerationNode)).call(this, p, pos_x, pos_y, color, select_color, on_color, calc_queue, node_id));
+
+		_this11.name = "Accele.";
+		_this11.desc = "";
+		_this11.comp_margin_y = 0;
+		_this11.comp_margin_x = _this11.w / (1.0 + 1);
+
+		var comp_id = 0;
+		_this11.addComponent((0, _gen_component.option_output_component)(_this11.p5js, _this11, (_this11.components.length + 1) * _this11.comp_margin_x, _this11.h + _this11.comp_margin_y, 0, true, "Option", comp_id++));
+		_this11.frame_count = 0;
+		_this11.frame_th = 100;
+		_this11.runnable = true;
+		_this11.setup_listener = _this11.setup_listener.bind(_this11);
+		//this.setup_listener();
+		window.addEventListener("devicemotion", _this11.setup_listener);
+		return _this11;
+	}
+
+	_createClass(OptionAccelerationNode, [{
+		key: "setup_listener",
+		value: function setup_listener(e) {
+			//加速度
+			var acc = e.acceleration;
+			var x = obj2NumberFix(acc.x, 5);
+			var y = obj2NumberFix(acc.y, 5);
+			var z = obj2NumberFix(acc.z, 5);
+			//傾き(重力加速度)
+			var acc_g = e.accelerationIncludingGravity;
+			var gx = obj2NumberFix(acc_g.x, 5);
+			var gy = obj2NumberFix(acc_g.y, 5);
+			var gz = obj2NumberFix(acc_g.z, 5);
+			//回転値
+			var rota_r = e.rotationRate;
+			var a = obj2NumberFix(rota_r.alpha, 5); //z方向
+			var b = obj2NumberFix(rota_r.beta, 5); //x方向
+			var g = obj2NumberFix(rota_r.gamma, 5); // y方向
+
+			function obj2NumberFix(obj, fix_deg) {
+				return Number(obj).toFixed(fix_deg);
+			}
+
+			if (this.runnable) {
+				if (x * x + y * y + z * z > 1) {
+					console.log("runnnnnnnnnn!!");
+					this.run();
+					this.runnable = false;
+				}
+			} else {
+				if (this.frame_count > this.frame_th) {
+					this.runnable = true;
+					this.frame_count = 0;
+				} else {
+					this.frame_count += 1;
+				}
+			}
 		}
 	}, {
 		key: "draw",
@@ -15702,11 +15845,11 @@ var AccelerationNode = exports.AccelerationNode = function (_NodeTemplate8) {
 				}
 			}
 
-			return { "node_name": "AccelerationNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
+			return { "node_name": "OptionAccelerationNode", "node_id": this.node_id, "node_pos": [this.x, this.y], "device_id": null, "input_node": input, "output_node": output };
 		}
 	}]);
 
-	return AccelerationNode;
+	return OptionAccelerationNode;
 }(_templates.NodeTemplate);
 
 },{"./gen_component.js":14,"./templates.js":21}],11:[function(require,module,exports){
@@ -16040,7 +16183,8 @@ exports.socket = socket;
 exports.IoTNode = IoTNode;
 exports.io_button = io_button;
 exports.option_button = option_button;
-exports.acce_node = acce_node;
+exports.io_acce_node = io_acce_node;
+exports.option_acce_node = option_acce_node;
 exports.menu_node = menu_node;
 
 var _misc = require("./misc.js");
@@ -16167,8 +16311,16 @@ function option_button(p, x, y) {
 	return nd;
 }
 
-function acce_node(p, x, y) {
-	var nd = new _base_node.AccelerationNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+function io_acce_node(p, x, y) {
+	var nd = new _base_node.IOAccelerationNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
+	nd.setInstance(nd);
+	// not calling init()
+
+	return nd;
+}
+
+function option_acce_node(p, x, y) {
+	var nd = new _base_node.OptionAccelerationNode(p, x, y, _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue);
 	nd.setInstance(nd);
 	// not calling init()
 
@@ -16282,6 +16434,7 @@ var NodeManager = exports.NodeManager = function () {
 		this.device_list = [];
 
 		this.readUpdate = this.readUpdate.bind(this);
+		this.restore_state = false;
 	}
 
 	_createClass(NodeManager, [{
@@ -16301,7 +16454,7 @@ var NodeManager = exports.NodeManager = function () {
 		}
 	}, {
 		key: "startWatching",
-		value: function startWatching() {
+		value: function startWatching(flag) {
 			this.api_wrapper.get.devices.setEvent(this.readUpdate);
 		}
 	}, {
@@ -16314,6 +16467,7 @@ var NodeManager = exports.NodeManager = function () {
 		key: "readUpdate",
 		value: function readUpdate(device_list) {
 			// not thinking that devices will decrease;
+			console.log("node manager : update received");
 			if (device_list == null) return;
 
 			var update_list = [];
@@ -16393,12 +16547,14 @@ var NodeManager = exports.NodeManager = function () {
 					tmp.init();
 					this.draw_manager.restoreNode(tmp);
 					store_node.push(tmp);
+					this.device_list.push({ id: json_object["node"][i]["device_id"] });
 				} else if (json_object["node"][i]["node_name"] == "SocketNode") {
 					tmp = new _base_node.SocketNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, this.api_wrapper, json_object["node"][i]["device_id"], json_object["node"][i]["node_id"]);
 					tmp.setInstance(tmp);
 					tmp.init();
 					this.draw_manager.restoreNode(tmp);
 					store_node.push(tmp);
+					this.device_list.push({ id: json_object["node"][i]["device_id"] });
 				} else if (json_object["node"][i]["node_name"] == "IOButtonNode") {
 					tmp = new _base_node.IOButtonNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
 					tmp.setInstance(tmp);
@@ -16413,8 +16569,15 @@ var NodeManager = exports.NodeManager = function () {
 					this.draw_manager.restoreNode(tmp);
 					out_list.push({ "output_node_id": json_object["node"][i]["node_id"], "output_target_id": json_object["node"][i]["output_node"], "type": 1 });
 					store_node.push(tmp);
-				} else if (json_object["node"][i]["node_name"] == "AccelerationNode") {
-					tmp = new _base_node.AccelerationNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
+				} else if (json_object["node"][i]["node_name"] == "IOAccelerationNode") {
+					tmp = new _base_node.IOAccelerationNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
+					tmp.setInstance(tmp);
+
+					this.draw_manager.restoreNode(tmp);
+					out_list.push({ "output_node_id": json_object["node"][i]["node_id"], "output_target_id": json_object["node"][i]["output_node"], "type": 1 });
+					store_node.push(tmp);
+				} else if (json_object["node"][i]["node_name"] == "OptionAccelerationNode") {
+					tmp = new _base_node.OptionAccelerationNode(this.p5js, json_object["node"][i]["node_pos"][0], json_object["node"][i]["node_pos"][1], _misc.default_color, _misc.select_color, _misc.on_color, _misc.calc_queue, json_object["node"][i]["node_id"]);
 					tmp.setInstance(tmp);
 
 					this.draw_manager.restoreNode(tmp);
@@ -16644,7 +16807,7 @@ function app(apiWrapper) {
 			canvas.parent("p5Canvas");
 			window.canvas = canvas;
 
-			console.log(apiWrapper.get.devices.toList());
+			//console.log(apiWrapper.get.devices.toList());
 
 			_misc.draw_manager.setDrawingContext(p);
 			_misc.draw_manager.setStateManager(_misc.state_manager);
@@ -16654,7 +16817,7 @@ function app(apiWrapper) {
 			_misc.node_manager.setDrawManager(_misc.draw_manager);
 
 			// read all device that are in the data base.
-			if (window.restore == false) _misc.node_manager.startWatching();
+			//if(window.restore==false) node_manager.startWatching();
 
 			// for value nput 
 			var input_field = p.createInput();
@@ -16675,10 +16838,10 @@ function app(apiWrapper) {
 			}
 			select_condition.hide();
 
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, -70, _gen_node.acce_node, "加速度", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "option\nスイッチ", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, -70, _gen_node.io_acce_node, "IO\n加速度", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, -70, _gen_node.option_button, "Option\nスイッチ", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, -70, _gen_node.io_button, "I/O\nスイッチ", null));
-			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, null, "", null));
+			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 120, 70, _gen_node.option_acce_node, "Option\n加速度", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, 0, 70, null, "", null));
 			_misc.draw_manager.pushMenuQueue((0, _gen_node.menu_node)(p, -120, 70, null, "", null));
 
@@ -16687,6 +16850,7 @@ function app(apiWrapper) {
 				(0, _restore.restore_call)(window.restore_json);
 				window.restore = false;
 			}
+			_misc.node_manager.startWatching(window.restore);
 
 			// setting up the drawing object.
 			/*
@@ -16709,6 +16873,7 @@ function app(apiWrapper) {
 			_misc.state_manager.setDragged(false);
 			_misc.state_manager.setSelected(null);
 			_misc.state_manager.setClearFlag(true);
+			_misc.state_manager.setMouseOn(false);
 		};
 
 		var update_state = function update_state() {
@@ -17573,3 +17738,4 @@ var ComponentTemplate = exports.ComponentTemplate = function (_Component) {
 }(_base_class.Component);
 
 },{"./base_class.js":8}]},{},[7]);
+
